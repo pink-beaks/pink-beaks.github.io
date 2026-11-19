@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pink Beaks · Handicaps i calendari</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root {
+  --ink: #17131F; --cream: #FAF5EC; --sand: #D8C8AE; --line: #E7DCCB;
+  --pink: #EC809A; --pink-strong: #DE5F78; --garnet: #B40F3B; --pink-pale: #FBE3EA;
+  --blue: #1F45C8; --lime: #D6F24A; --muted: #5E5563; --good: #1F7A4D; --bad: #B40F3B;
+  --pad: clamp(16px, 4vw, 40px);
+  --display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--cream); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 var(--pad) 48px; }
+
+/* Capçalera */
+.head { background: var(--ink); color: var(--cream); border-bottom: 6px solid var(--pink); }
+.head-in { max-width: 1100px; margin: 0 auto; padding: 32px var(--pad) 26px; display: grid; grid-template-columns: auto 1fr; column-gap: clamp(14px, 3vw, 28px); align-items: center; }
+.escut { grid-row: 1 / span 2; width: clamp(76px, 13vw, 128px); height: auto; display: block; filter: drop-shadow(0 4px 10px rgba(0,0,0,.35)); }
+h1 { grid-column: 2; align-self: end; font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: clamp(2.4rem, 6.5vw, 3.8rem); line-height: .92; letter-spacing: .01em; color: var(--pink); margin: 0 0 14px; }
+h1 .dot { color: var(--lime); }
+.lede { grid-column: 2; align-self: start; margin: 0; color: rgba(250,245,236,.78); max-width: 62ch; }
+.lede b { color: var(--cream); font-variant-numeric: tabular-nums; }
+.head .good { color: var(--lime); } .head .bad { color: var(--pink); }
+
+/* Navegació i filtres */
+.cal-controls { margin: 14px 0 10px; }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; margin: 24px 0; }
+.seg-label { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; margin-right: 6px; }
+.seg { display: inline-flex; flex-wrap: wrap; background: #fff; border: 1px solid var(--sand); border-radius: 999px; padding: 2px; gap: 2px; }
+.seg button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 500; padding: 5px 13px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--cream); }
+.seg button[data-equip="Primer Equip"][aria-pressed="true"], .seg button[data-equipcal="Primer Equip"][aria-pressed="true"] { background: var(--blue); color: #fff; }
+.seg button[data-equip="Femení"][aria-pressed="true"], .seg button[data-equipcal="Femení"][aria-pressed="true"] { background: var(--lime); color: var(--ink); }
+.seg button[data-rang][aria-pressed="true"] { background: var(--pink-strong); color: #fff; }
+
+/* Xifres */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 36px; }
+.tile { background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--pink-strong); border-radius: 10px; padding: 16px 18px; }
+.tile.t2 { border-top-color: var(--garnet); } .tile.t3 { border-top-color: var(--blue); } .tile.t4 { border-top-color: var(--lime); }
+.tile h3 { margin: 0 0 4px; font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; color: var(--muted); }
+.big { font-family: var(--display); font-weight: 800; font-size: 2.8rem; line-height: 1; display: block; font-variant-numeric: tabular-nums; }
+.sub { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.good { color: var(--good); } .bad { color: var(--bad); }
+
+/* Seccions */
+section { margin-bottom: 44px; scroll-margin-top: 16px; }
+h2 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.9rem; letter-spacing: .01em; line-height: 1; margin: 0 0 6px; }
+h2::after { content: ''; display: block; width: 44px; height: 4px; background: var(--pink-strong); margin-top: 8px; border-radius: 2px; }
+.note { font-size: 13px; color: var(--muted); margin: 8px 0 14px; }
+.chart { position: relative; min-height: 340px; }
+.chart svg text { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: var(--muted); }
+.chart .endlabel { font-weight: 500; cursor: pointer; }
+.tip { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(23,19,31,.12); border-radius: 8px; padding: 6px 10px; font-size: 12px; white-space: nowrap; z-index: 2; }
+.tip .s { color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: #fff; color: var(--ink); font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--ink); background: var(--pink-pale); }
+.chip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* Taules */
+.tablewrap { overflow-x: auto; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; color: var(--muted); background: var(--pink-pale); padding: 8px 10px; white-space: nowrap; }
+td { padding: 8px 10px; border-top: 1px solid #F1E9DC; white-space: nowrap; }
+tbody tr:hover td { background: #FDF3F6; }
+.num { text-align: right; }
+.tag { display: inline-block; font-weight: 700; font-size: 12px; padding: 2px 10px; border-radius: 999px; }
+.tag-m { background: var(--blue); color: #fff; }
+.tag-f { background: var(--lime); color: var(--ink); }
+.tag-t { background: transparent; color: var(--ink); border: 1px solid var(--sand); font-weight: 500; }
+
+/* Calendari */
+.next { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; background: var(--ink); color: var(--cream); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; border-left: 8px solid var(--pink); }
+.next .k { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 13px; color: var(--pink); }
+.next .t { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.7rem; line-height: 1.05; }
+.next .c { color: rgba(250,245,236,.75); font-size: 14px; }
+.next .d { text-align: center; background: var(--pink-strong); color: #fff; border-radius: 10px; padding: 8px 14px; min-width: 76px; }
+.next .d b { font-family: var(--display); font-weight: 800; font-size: 2.2rem; line-height: 1; display: block; }
+.next .d span { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.next .left { text-align: right; font-family: var(--display); font-weight: 800; font-size: 1.6rem; line-height: 1; color: var(--lime); }
+.next .left small { display: block; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 12px; color: rgba(250,245,236,.7); }
+.month { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.15rem; letter-spacing: .03em; margin: 22px 0 8px; }
+.events { display: grid; gap: 6px; }
+.ev { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--sand); border-radius: 8px; padding: 8px 12px; }
+.ev.ty-ic { border-left-color: var(--pink-strong); }
+.ev.ty-ri { border-left-color: var(--garnet); }
+.ev.ty-rp { border-left-color: var(--sand); }
+.ev.ty-cc { border-left-color: var(--ink); }
+.ev.past { opacity: .45; }
+.ev.is-next { box-shadow: 0 0 0 2px var(--pink-strong); }
+.ev .dd { text-align: center; line-height: 1; }
+.ev .dd b { font-family: var(--display); font-weight: 800; font-size: 1.6rem; display: block; }
+.ev .dd span { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: .05em; }
+.ev .pr { font-weight: 700; }
+.ev .cp { font-size: 13px; color: var(--muted); }
+.legend-types { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin: 6px 0 4px; }
+.legend-types span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+
+/* Pestanyes */
+.tabs { position: sticky; top: 0; z-index: 10; background: var(--cream); border-bottom: 2px solid var(--line); }
+.tabs-in { max-width: 1100px; margin: 0 auto; padding: 0 var(--pad); display: flex; gap: 6px; }
+.tab { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.25rem; letter-spacing: .03em; background: transparent; border: 0; color: var(--muted); padding: 14px 16px 10px; cursor: pointer; border-bottom: 4px solid transparent; margin-bottom: -2px; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--pink-strong); }
+.tab:hover { color: var(--ink); }
+.panel[hidden] { display: none; }
+#tile-next { cursor: pointer; }
+.camps { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.camps span { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+.camps b { font-family: var(--display); font-weight: 800; margin-right: 6px; color: var(--pink-strong); }
+
+/* Fitxa de jugador */
+tbody#ranking tr { cursor: pointer; }
+.mitj5 { font-weight: 700; }
+.overlay { position: fixed; inset: 0; background: rgba(23,19,31,.55); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 12px; z-index: 50; overflow-y: auto; }
+.overlay[hidden] { display: none; }
+.card { background: var(--cream); width: min(760px, 100%); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+.card-head { background: var(--ink); color: var(--cream); padding: 18px 20px; display: flex; gap: 14px; align-items: center; border-bottom: 5px solid var(--pink); }
+.card-head h3 { margin: 0; font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 2.2rem; line-height: 1; color: var(--pink); }
+.card-head .meta { font-size: 13px; color: rgba(250,245,236,.75); margin-top: 4px; }
+.card-head .close { margin-left: auto; background: transparent; border: 1px solid rgba(250,245,236,.35); color: var(--cream); border-radius: 999px; width: 36px; height: 36px; font-size: 18px; cursor: pointer; }
+.card-body { padding: 18px 20px 22px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.stat { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; border-top: 4px solid var(--pink-strong); }
+.stat.s2 { border-top-color: var(--blue); } .stat.s3 { border-top-color: var(--lime); } .stat.s4 { border-top-color: var(--garnet); }
+.stat h4 { margin: 0 0 2px; font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; color: var(--muted); }
+.stat .v { font-family: var(--display); font-weight: 800; font-size: 2.1rem; line-height: 1.05; display: block; }
+.stat .d { font-size: 12px; color: var(--muted); }
+.card h5 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.1rem; margin: 6px 0 8px; }
+.spark { margin-bottom: 16px; }
+.mod { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.mod.ind { background: var(--pink-pale); color: var(--garnet); }
+.mod.par { background: #E4E9FB; color: var(--blue); }
+tr.r-ind td:first-child { box-shadow: inset 4px 0 0 var(--pink-strong); }
+tr.r-par td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
+.leg-mod { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin: -2px 0 8px; }
+.leg-mod span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+.avatar { width: 84px; height: 84px; border-radius: 50%; flex: 0 0 auto; object-fit: cover; border: 3px solid var(--pink); background: var(--pink-strong); color: #fff; display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 2rem; }
+.avatar.f { border-color: var(--lime); }
+.card-head { position: relative; overflow: hidden; }
+.card-head .dorsal { position: relative; z-index: 2; flex: 0 0 auto; align-self: flex-end; font-family: var(--display); font-weight: 800; font-size: 104px; line-height: .78; color: transparent; -webkit-text-stroke: 2px var(--pink); letter-spacing: -.02em; pointer-events: none; user-select: none; margin-right: -2px; }
+.card-head.has-photo .dorsal { font-size: 120px; }
+.card-head.fem .dorsal { -webkit-text-stroke-color: var(--lime); }
+.card-head .cut { z-index: 1; }
+.card-head > div:not(#fitxa-foto):not(.dorsal) { position: relative; z-index: 2; }
+.card-head .close { z-index: 3; }
+.card-head.has-photo { min-height: 230px; align-items: flex-end; overflow: hidden; padding-bottom: 22px;
+  background: radial-gradient(circle at 76% 85%, rgba(222,95,120,.55), rgba(222,95,120,0) 55%), var(--ink); }
+.card-head.has-photo.fem { background: radial-gradient(circle at 76% 85%, rgba(214,242,74,.35), rgba(214,242,74,0) 55%), var(--ink); }
+.card-head .cut { position: absolute; right: 64px; bottom: 0; height: 218px; width: auto; max-width: 60%; object-fit: contain; object-position: bottom right; filter: drop-shadow(0 6px 18px rgba(0,0,0,.45)); pointer-events: none; }
+.card-head.has-photo > div:not(#fitxa-foto):not(.dorsal) { position: relative; z-index: 2; max-width: 55%; }
+.card-head.has-photo h3 { font-size: 3.2rem; }
+.card-head.has-photo #fitxa-foto { display: none; }
+.card-head .close { position: relative; z-index: 2; align-self: flex-start; }
+.card-head.has-photo .close { position: absolute; top: 14px; right: 14px; }
+@media (max-width: 560px) {
+  .card-head .dorsal, .card-head.has-photo .dorsal { font-size: 72px; -webkit-text-stroke-width: 1.5px; }
+  .card-head.has-photo { min-height: 190px; }
+  .card-head .cut { height: 168px; right: 4px; max-width: 56%; }
+  .card-head.has-photo h3 { font-size: 2.4rem; }
+}
+footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink); padding-top: 12px; }
+@media (max-width: 560px) {
+  .next { grid-template-columns: auto 1fr; }
+  .next .left { grid-column: 1 / -1; text-align: left; }
+  .ev { grid-template-columns: 48px 1fr; }
+  .ev .eq { grid-column: 2; }
+}
+</style>
+</head>
+<body>
+<header class="head">
+  <div class="head-in">
+    <img class="escut" src="escut.png" alt="Escut dels Pink Beaks">
+    <h1>Pink Beaks<span class="dot">.</span></h1>
+    <p class="lede" id="lede">Handicaps i calendari de la temporada.</p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Seccions">
+  <div class="tabs-in" role="tablist">
+    <button class="tab" role="tab" id="t-handicaps" aria-controls="handicaps" aria-selected="true" data-tab="handicaps">Handicaps</button>
+    <button class="tab" role="tab" id="t-calendari" aria-controls="calendari-tab" aria-selected="false" data-tab="calendari">Calendari</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="panel" id="handicaps" role="tabpanel" aria-labelledby="t-handicaps">
+  <div class="controls">
+    <span><span class="seg-label">Equip</span>
+      <span class="seg" role="group" aria-label="Equip">
+        <button type="button" data-equip="" aria-pressed="true">Tots</button>
+        <button type="button" data-equip="Primer Equip" aria-pressed="false">Masculí</button>
+        <button type="button" data-equip="Femení" aria-pressed="false">Femení</button>
+      </span></span>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><h3>Mitjana de l'equip</h3><span class="big" id="k-mitjana">—</span><span class="sub"><span id="k-dany">—</span> vs desembre passat</span></div>
+    <div class="tile t2"><h3>Millor handicap</h3><span class="big" id="k-lider">—</span><span class="sub" id="k-lider-nom">—</span></div>
+    <div class="tile t3"><h3>Més millora aquest any</h3><span class="big" id="k-millora">—</span><span class="sub" id="k-millora-nom">—</span></div>
+    <div class="tile t4" id="tile-next" title="Veure el calendari"><h3>Propera prova</h3><span class="big" id="k-next">—</span><span class="sub" id="k-next-nom">—</span></div>
+  </div>
+
+  <section id="evolucio">
+    <h2>Evolució del handicap</h2>
+    <div class="controls" style="margin: 12px 0 0">
+      <span><span class="seg-label">Període</span>
+        <span class="seg" role="group" aria-label="Període">
+          <button type="button" data-rang="12" aria-pressed="true">12 mesos</button>
+          <button type="button" data-rang="tot" aria-pressed="false">Tot</button>
+        </span></span>
+    </div>
+    <p class="note">Un punt per mes i jugador. La línia discontínua és la mitjana de l'equip. Toca un nom per destacar-lo.</p>
+    <div class="chart" id="chart"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section id="classificacio">
+    <h2>Classificació actual</h2>
+    <p class="note">Δ mes: canvi respecte a l'últim mes amb dada. Δ any: canvi respecte al desembre passat. Forma: 🟢 ha baixat, 🔴 ha pujat, 🟡 igual, 💀 sense moure's 4 mesos o més. Mitj. 5: mitjana de cops bruts dels 5 últims torneigs individuals (últims 12 mesos). Últim update: última actualització del handicap a pitch.cat. Toca un jugador per veure'n la fitxa.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>#</th><th>Jugador</th><th>Equip</th><th class="num">HCP</th><th class="num">Δ mes</th><th class="num">Δ any</th><th>Forma</th><th class="num">Mitj. 5</th><th>Últim update</th></tr></thead>
+        <tbody id="ranking"></tbody>
+      </table>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="panel" id="calendari-tab" role="tabpanel" aria-labelledby="t-calendari" hidden>
+  <section id="calendari" style="margin-top: 24px">
+    <h2>Calendari 2027</h2>
+    <div class="controls cal-controls">
+      <span><span class="seg-label">Competició</span>
+        <span class="seg" role="group" aria-label="Competició">
+          <button type="button" data-tipus="" aria-pressed="true">Totes</button>
+          <button type="button" data-tipus="Interclubs" aria-pressed="false">Interclubs</button>
+          <button type="button" data-tipus="Rànquing individual" aria-pressed="false">Rànquing</button>
+          <button type="button" data-tipus="Rànquing parelles" aria-pressed="false">Parelles</button>
+          <button type="button" data-tipus="Campionat de Catalunya" aria-pressed="false">Campionats</button>
+        </span></span>
+      <span><span class="seg-label">Equip</span>
+        <span class="seg" role="group" aria-label="Equip del calendari">
+          <button type="button" data-equipcal="" aria-pressed="true">Tots</button>
+          <button type="button" data-equipcal="Primer Equip" aria-pressed="false">Masculí</button>
+          <button type="button" data-equipcal="Femení" aria-pressed="false">Femení</button>
+        </span></span>
+    </div>
+    <div class="legend-types">
+      <span style="--c: var(--pink-strong)">Interclubs</span>
+      <span style="--c: var(--garnet)">Rànquing individual</span>
+      <span style="--c: var(--sand)">Rànquing parelles</span>
+      <span style="--c: var(--ink)">Campionats de Catalunya</span>
+    </div>
+    <div id="next"></div>
+    <div id="cal"></div>
+  </section>
+
+  </div>
+
+  <div class="overlay" id="fitxa" hidden role="dialog" aria-modal="true" aria-labelledby="fitxa-nom">
+    <div class="card">
+      <div class="card-head"><div id="fitxa-foto"></div><div><h3 id="fitxa-nom">—</h3><div class="meta" id="fitxa-meta"></div></div><button class="close" type="button" aria-label="Tancar">✕</button></div>
+      <div class="card-body" id="fitxa-body"></div>
+    </div>
+  </div>
+
+  <footer id="peu">Handicaps oficials de pitch.cat (FCPP).</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="data.js"></script>
+<script src="fotos.js"></script>
+<script>
+(function () {
+  const D = window.PB_DATA || { jugadors: [], mesos: [], calendari: [] };
+  const MESOS = ['gen', 'febr', 'març', 'abr', 'maig', 'juny', 'jul', 'ag', 'set', 'oct', 'nov', 'des'];
+  const MESOS_LLARG = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octubre', 'Novembre', 'Desembre'];
+  const DIES = ['dg', 'dl', 'dt', 'dc', 'dj', 'dv', 'ds'];
+  const PAL = ['#DE5F78', '#1F45C8', '#B40F3B', '#17131F', '#8FA617', '#EC809A', '#6F8BEA', '#A8926B'];
+  const state = { equip: '', equipCal: '', rang: '12', tipus: '', focus: null };
+  try { const s = JSON.parse(localStorage.getItem('pb-public') || '{}'); if (s.equip !== undefined) state.equip = s.equip; if (s.rang) state.rang = s.rang; if (s.tipus !== undefined) state.tipus = s.tipus; if (s.equipCal !== undefined) state.equipCal = s.equipCal; } catch (e) {}
+  const save = () => { try { localStorage.setItem('pb-public', JSON.stringify({ equip: state.equip, equipCal: state.equipCal, rang: state.rang, tipus: state.tipus })); } catch (e) {} };
+
+  const fmt1 = (v) => (v == null || isNaN(v) ? '—' : v.toFixed(1).replace('.', ','));
+  const fmtS = (v) => (v == null || isNaN(v) ? '—' : Math.abs(v) < 0.05 ? '=' : (v > 0 ? '+' : '-') + Math.abs(v).toFixed(1).replace('.', ','));
+  const tone = (v) => (v == null || Math.abs(v) < 0.05 ? '' : v < 0 ? 'good' : 'bad');
+  const mesLabel = (m) => { const [y, mm] = m.split('-'); return MESOS[+mm - 1] + ' ' + y.slice(2); };
+  const parseMes = (m) => { const [y, mm] = m.split('-'); return new Date(Date.UTC(+y, +mm - 1, 1)); };
+  const parseDia = (s) => { const [y, m, d] = s.split('-'); return new Date(Date.UTC(+y, +m - 1, +d)); };
+  const dataLabel = (s) => { if (!s) return '—'; const [y, m, d] = s.split('-'); return (+d) + ' ' + MESOS[+m - 1] + ' ' + y.slice(2); };
+  const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const tagEquip = (eq) => el('span', 'tag ' + (eq === 'Femení' ? 'tag-f' : eq === 'Tots' ? 'tag-t' : 'tag-m'), eq === 'Femení' ? 'Femení' : eq === 'Tots' ? 'Tots' : 'Masculí');
+
+  function long() {
+    const roster = new Map(D.jugadors.filter((j) => !state.equip || j.equip === state.equip).map((j) => [j.nom, j]));
+    const out = [];
+    for (const r of D.mesos) for (const [k, v] of Object.entries(r.hcp || {})) if (roster.has(k) && v != null) out.push({ jugador: k, equip: roster.get(k).equip, mes: r.mes, hcp: +v });
+    return out.sort((a, b) => (a.mes < b.mes ? -1 : a.mes > b.mes ? 1 : a.jugador.localeCompare(b.jugador)));
+  }
+
+  function ranking(rows) {
+    const upd = new Map(D.jugadors.map((j) => [j.nom, j.darrer_update]));
+    const out = [];
+    for (const [jugador, serie] of d3.group(rows, (d) => d.jugador)) {
+      const s = serie.slice().sort((a, b) => (a.mes < b.mes ? -1 : 1));
+      const last = s[s.length - 1], prev = s.length > 1 ? s[s.length - 2] : null;
+      const year = last.mes.slice(0, 4);
+      const base = s.filter((d) => d.mes.slice(0, 4) < year).pop() || s.find((d) => d.mes.slice(0, 4) === year && d !== last);
+      const d_mes = prev ? Math.round((last.hcp - prev.hcp) * 10) / 10 : null;
+      const d_any = base ? Math.round((last.hcp - base.hcp) * 10) / 10 : null;
+      let run = 1; for (let i = s.length - 2; i >= 0 && Math.abs(s[i].hcp - last.hcp) < 0.05; i--) run++;
+      let forma = '🟡'; if (d_mes != null && d_mes < 0) forma = '🟢'; else if (d_mes != null && d_mes > 0) forma = '🔴'; else if (run >= 5) forma = '💀';
+      out.push({ jugador, equip: last.equip, hcp: last.hcp, d_mes, d_any, forma, upd: upd.get(jugador) });
+    }
+    return out.sort((a, b) => a.hcp - b.hcp || a.jugador.localeCompare(b.jugador));
+  }
+
+  function resum(rows) {
+    if (!rows.length) return null;
+    const lastMes = d3.max(rows, (d) => d.mes), year = lastMes.slice(0, 4);
+    const byMes = d3.rollup(rows, (v) => d3.mean(v, (d) => d.hcp), (d) => d.mes);
+    const prevYearMes = d3.max(rows.filter((d) => d.mes.slice(0, 4) < year), (d) => d.mes);
+    const r = ranking(rows);
+    const lider = r[0];
+    const millora = r.filter((x) => x.d_any != null).sort((a, b) => a.d_any - b.d_any)[0];
+    return {
+      mitjana: Math.round(byMes.get(lastMes) * 10) / 10,
+      d_any: prevYearMes ? Math.round((byMes.get(lastMes) - byMes.get(prevYearMes)) * 10) / 10 : null,
+      lider, millora,
+    };
+  }
+
+  function calendari(eq, tipus) {
+    return D.calendari.filter((e) => (!eq || e.equip === 'Tots' || e.equip === eq) && (!tipus || e.tipus === tipus));
+  }
+  const avui = new Date(); const avuiUTC = Date.UTC(avui.getFullYear(), avui.getMonth(), avui.getDate());
+
+  function drawTiles(rows) {
+    const r = resum(rows);
+    const set = (id, txt, t) => { const e = document.getElementById(id); e.textContent = txt; e.classList.remove('good', 'bad'); if (t) e.classList.add(t); };
+    set('k-mitjana', r ? fmt1(r.mitjana) : '—');
+    set('k-dany', r ? fmtS(r.d_any) : '—', r ? tone(r.d_any) : '');
+    set('k-lider', r && r.lider ? fmt1(r.lider.hcp) : '—');
+    set('k-lider-nom', r && r.lider ? r.lider.jugador : '—');
+    set('k-millora', r && r.millora ? fmtS(r.millora.d_any) : '—', r && r.millora ? tone(r.millora.d_any) : '');
+    set('k-millora-nom', r && r.millora ? r.millora.jugador : '—');
+    const nx = calendari(state.equip, '').find((e) => parseDia(e.data) >= avuiUTC);
+    set('k-next', nx ? dataLabel(nx.data) : '—');
+    set('k-next-nom', nx ? nx.prova + ' · ' + nx.camp : 'Temporada acabada');
+    // Lede
+    const lede = document.getElementById('lede');
+    lede.replaceChildren();
+    if (r) {
+      lede.append('La mitjana de l\'equip és ', el('b', '', fmt1(r.mitjana)), ', ');
+      lede.append(el('span', tone(r.d_any), fmtS(r.d_any)), ' respecte al desembre passat.');
+      if (r.millora) lede.append(' Qui més ha baixat aquest any és ', el('b', '', r.millora.jugador), ' (', el('span', tone(r.millora.d_any), fmtS(r.millora.d_any)), ').');
+    }
+  }
+
+  function drawRanking(rows) {
+    const tb = document.getElementById('ranking'); tb.replaceChildren();
+    ranking(rows).forEach((r, i) => {
+      const tr = document.createElement('tr');
+      const td = (txt, cls) => { const c = el('td', cls || '', txt); tr.appendChild(c); return c; };
+      td(String(i + 1)); td(r.jugador).style.fontWeight = '600';
+      const te = td(null); te.appendChild(tagEquip(r.equip));
+      td(fmt1(r.hcp), 'num');
+      td(fmtS(r.d_mes), 'num ' + tone(r.d_mes)); td(fmtS(r.d_any), 'num ' + tone(r.d_any));
+      td(r.forma); const R5 = (D.resultats || {})[r.jugador]; td(R5 && R5.m5 != null ? fmt1(R5.m5) : '—', 'num mitj5'); td(dataLabel(r.upd));
+      tr.addEventListener('click', () => openPlayer(r.jugador));
+      tb.appendChild(tr);
+    });
+  }
+
+  function drawChart(rows) {
+    const box = document.getElementById('chart'); box.replaceChildren();
+    const noms = Array.from(new Set(rows.map((d) => d.jugador))).sort((a, b) => a.localeCompare(b));
+    const color = (n) => PAL[Math.max(0, noms.indexOf(n)) % PAL.length];
+    let data = rows.map((d) => ({ ...d, d: parseMes(d.mes) }));
+    if (!data.length) { box.appendChild(el('p', 'note', 'Encara no hi ha dades per a aquest equip.')); return; }
+    const maxD = d3.max(data, (d) => d.d);
+    if (state.rang === '12') { const from = d3.utcMonth.offset(maxD, -11); data = data.filter((d) => d.d >= from); }
+    const avg = d3.rollups(data, (v) => d3.mean(v, (d) => d.hcp), (d) => +d.d).map(([t, v]) => ({ d: new Date(t), hcp: v })).sort((a, b) => a.d - b.d);
+    const groups = d3.groups(data, (d) => d.jugador).map(([nom, v]) => ({ nom, v: v.sort((a, b) => a.d - b.d) }));
+    const W = Math.max(280, box.clientWidth || 700), H = W < 520 ? 360 : 460;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Evolució mensual del handicap de cada jugador');
+    const labelText = (g) => `${g.nom} ${fmt1(g.v[g.v.length - 1].hcp)}`;
+    const tmp = svg.append('g'); let labelW = 0;
+    groups.forEach((g) => { const t = tmp.append('text').attr('class', 'endlabel').text(labelText(g)); labelW = Math.max(labelW, t.node().getComputedTextLength()); });
+    tmp.remove();
+    const yExt = d3.extent(data, (d) => d.hcp);
+    const y = d3.scaleLinear([Math.floor(yExt[0] - 1), Math.ceil(yExt[1] + 1)], [H - 26, 10]).nice();
+    const yTicks = y.ticks(H < 400 ? 6 : 8);
+    const mg = { l: 30, r: labelW + 18, t: 10, b: 26 };
+    const x = d3.scaleUtc(d3.extent(data, (d) => d.d), [mg.l, W - mg.r]);
+    svg.append('g').selectAll('line').data(yTicks).join('line').attr('x1', mg.l).attr('x2', W - mg.r).attr('y1', y).attr('y2', y)
+      .attr('stroke', (t) => (t === 0 ? '#B9A98E' : '#EDE4D6'));
+    svg.append('g').selectAll('text').data(yTicks).join('text').attr('x', mg.l - 6).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text((t) => String(t).replace('.', ','));
+    const months = d3.utcMonth.range(d3.min(data, (d) => d.d), d3.utcMonth.offset(maxD, 1));
+    const every = Math.max(1, Math.ceil(months.length / Math.max(2, Math.floor((W - mg.l - mg.r) / 56))));
+    svg.append('g').selectAll('text').data(months.filter((_, i) => i % every === 0)).join('text').attr('x', x).attr('y', H - 8).attr('text-anchor', 'middle').text((d) => mesLabel(d.toISOString().slice(0, 7)));
+    const focus = state.focus && noms.includes(state.focus) ? state.focus : null;
+    const line = d3.line().x((d) => x(d.d)).y((d) => y(d.hcp));
+    const lines = svg.append('g').selectAll('path').data(groups).join('path').attr('fill', 'none').attr('d', (g) => line(g.v))
+      .attr('stroke', (g) => color(g.nom)).attr('stroke-width', (g) => (g.nom === focus ? 3 : 1.6)).attr('opacity', (g) => (focus && g.nom !== focus ? 0.12 : 0.9));
+    svg.append('g').selectAll('circle').data(groups.filter((g) => !focus || g.nom === focus).flatMap((g) => g.v.map((p) => ({ ...p, nom: g.nom })))).join('circle')
+      .attr('cx', (d) => x(d.d)).attr('cy', (d) => y(d.hcp)).attr('r', focus ? 3 : 1.8).attr('fill', (d) => color(d.nom));
+    if (avg.length > 1) svg.append('path').attr('fill', 'none').attr('d', line(avg)).attr('stroke', '#17131F').attr('stroke-width', 2).attr('stroke-dasharray', '5 4').attr('opacity', focus ? 0.5 : 0.85);
+    const labs = groups.map((g) => { const l = g.v[g.v.length - 1]; return { g, x: x(l.d), y0: y(l.hcp), y: y(l.hcp) }; }).sort((a, b) => a.y0 - b.y0);
+    const gap = 12;
+    for (let i = 1; i < labs.length; i++) if (labs[i].y < labs[i - 1].y + gap) labs[i].y = labs[i - 1].y + gap;
+    const over = labs.length ? labs[labs.length - 1].y - (H - mg.b) : 0;
+    if (over > 0) { labs.forEach((l) => (l.y -= over)); for (let i = labs.length - 2; i >= 0; i--) if (labs[i].y > labs[i + 1].y - gap) labs[i].y = labs[i + 1].y - gap; }
+    const lx = W - mg.r + 8, lg = svg.append('g');
+    lg.selectAll('line').data(labs).join('line').attr('x1', (l) => l.x + 2).attr('x2', lx - 2).attr('y1', (l) => l.y0).attr('y2', (l) => l.y).attr('stroke', (l) => color(l.g.nom)).attr('opacity', (l) => (focus && l.g.nom !== focus ? 0.12 : 0.5));
+    lg.selectAll('text').data(labs).join('text').attr('class', 'endlabel').attr('x', lx).attr('y', (l) => l.y).attr('dy', '0.32em')
+      .style('fill', (l) => color(l.g.nom)).style('font-weight', (l) => (l.g.nom === focus ? 700 : 500)).attr('opacity', (l) => (focus && l.g.nom !== focus ? 0.3 : 1))
+      .text((l) => labelText(l.g)).on('click', (ev, l) => openPlayer(l.g.nom));
+    const tip = el('div', 'tip'); tip.hidden = true; box.appendChild(tip);
+    const dot = svg.append('circle').attr('r', 4.5).attr('fill', 'none').attr('stroke', '#17131F').attr('stroke-width', 1.5).style('display', 'none');
+    const pts = groups.filter((g) => !focus || g.nom === focus).flatMap((g) => g.v.map((p) => ({ ...p, nom: g.nom })));
+    const nearest = (ev) => { const [px, py] = d3.pointer(ev); return d3.least(pts, (d) => Math.hypot(x(d.d) - px, (y(d.hcp) - py) * 1.2)); };
+    svg.append('rect').attr('x', mg.l).attr('y', mg.t).attr('width', Math.max(0, W - mg.l - mg.r)).attr('height', Math.max(0, H - mg.t - mg.b)).attr('fill', 'transparent')
+      .on('pointermove', (ev) => {
+        const p = nearest(ev); if (!p) return;
+        dot.style('display', null).attr('cx', x(p.d)).attr('cy', y(p.hcp));
+        tip.replaceChildren(el('div', '', `${p.nom} · ${fmt1(p.hcp)}`), el('div', 's', mesLabel(p.mes)));
+        tip.firstChild.style.fontWeight = '700'; tip.hidden = false;
+        const sx = box.clientWidth / W;
+        tip.style.left = Math.min(Math.max(0, x(p.d) * sx + 10), box.clientWidth - tip.offsetWidth) + 'px';
+        tip.style.top = Math.max(0, y(p.hcp) * sx - 46) + 'px';
+        lines.attr('opacity', (g) => (g.nom === p.nom ? 1 : focus ? 0.12 : 0.25)).attr('stroke-width', (g) => (g.nom === p.nom ? 3 : 1.6));
+      })
+      .on('pointerleave', () => { tip.hidden = true; dot.style('display', 'none'); lines.attr('opacity', (g) => (focus && g.nom !== focus ? 0.12 : 0.9)).attr('stroke-width', (g) => (g.nom === focus ? 3 : 1.6)); })
+      .on('click', (ev) => { const p = nearest(ev); if (p) toggleFocus(p.nom); });
+    // Llegenda
+    const lgd = document.getElementById('legend'); lgd.replaceChildren();
+    noms.forEach((n) => {
+      const b = el('button', 'chip'); b.type = 'button'; b.setAttribute('aria-pressed', String(state.focus === n));
+      const i = el('i'); i.style.background = color(n); b.append(i, document.createTextNode(n));
+      b.addEventListener('click', () => { toggleFocus(n); if (state.focus === n) openPlayer(n); }); lgd.appendChild(b);
+    });
+  }
+
+  function toggleFocus(n) { state.focus = state.focus === n ? null : n; drawChart(long()); }
+
+  function drawCalendar() {
+    const evs = calendari(state.equipCal, state.tipus);
+    const next = evs.find((e) => parseDia(e.data) >= avuiUTC);
+    const nb = document.getElementById('next'); nb.replaceChildren();
+    if (next) {
+      const dt = parseDia(next.data);
+      const card = el('div', 'next');
+      const d = el('div', 'd'); d.append(el('b', '', String(dt.getUTCDate())), el('span', '', MESOS[dt.getUTCMonth()] + ' · ' + DIES[dt.getUTCDay()]));
+      const mid = el('div'); mid.append(el('div', 'k', 'Propera prova'), el('div', 't', next.prova), el('div', 'c', next.camp + ' · ' + (next.equip === 'Tots' ? 'Masculí i femení' : next.equip === 'Femení' ? 'Femení' : 'Masculí')));
+      const days = Math.round((dt - avuiUTC) / 86400000);
+      const left = el('div', 'left', days === 0 ? 'Avui!' : days === 1 ? 'Demà' : 'D-' + days);
+      left.appendChild(el('small', '', days > 1 ? 'dies que falten' : ''));
+      card.append(d, mid, left); nb.appendChild(card);
+    }
+    const cal = document.getElementById('cal'); cal.replaceChildren();
+    if (!evs.length) cal.appendChild(el('p', 'note', 'Cap prova amb aquests filtres.'));
+    const ty = { 'Interclubs': 'ty-ic', 'Rànquing individual': 'ty-ri', 'Rànquing parelles': 'ty-rp', 'Campionat de Catalunya': 'ty-cc' };
+    for (const [ym, list] of d3.groups(evs, (e) => e.data.slice(0, 7))) {
+      const [y, m] = ym.split('-');
+      cal.appendChild(el('div', 'month', MESOS_LLARG[+m - 1] + ' ' + y));
+      const box = el('div', 'events');
+      list.forEach((e) => {
+        const dt = parseDia(e.data);
+        const row = el('div', 'ev ' + (ty[e.tipus] || '') + (dt < avuiUTC ? ' past' : '') + (next && e === next ? ' is-next' : ''));
+        const dd = el('div', 'dd'); dd.append(el('b', '', String(dt.getUTCDate())), el('span', '', DIES[dt.getUTCDay()]));
+        const info = el('div'); info.append(el('div', 'pr', e.prova), el('div', 'cp', e.camp));
+        const eq = el('div', 'eq'); eq.appendChild(tagEquip(e.equip));
+        row.append(dd, info, eq); box.appendChild(row);
+      });
+      cal.appendChild(box);
+    }
+  }
+
+  const MOD = { IN: 'Individual', FB: 'Fourball', FS: 'Foursome', GR: 'Greensome', GH: 'Greensome' };
+  function openPlayer(nom) {
+    const ov = document.getElementById('fitxa');
+    const j = D.jugadors.find((x) => x.nom === nom); if (!j) return;
+    const R = (D.resultats || {})[nom];
+    const serie = D.mesos.filter((m) => m.hcp && m.hcp[nom] != null).map((m) => ({ mes: m.mes, hcp: +m.hcp[nom] }));
+    const last = serie[serie.length - 1];
+    document.getElementById('fitxa-nom').textContent = nom;
+    const fo = document.getElementById('fitxa-foto'); fo.replaceChildren();
+    const head = ov.querySelector('.card-head'); head.querySelectorAll('.cut, .dorsal').forEach((x) => x.remove());
+    const dorsal = (window.PB_DORSALS || {})[nom];
+    if (dorsal != null) { const dn = el('div', 'dorsal', String(dorsal)); dn.setAttribute('aria-label', 'Dorsal ' + dorsal); head.insertBefore(dn, document.getElementById('fitxa-nom').parentNode); }
+    const fotoSrc = (window.PB_FOTOS || {})[nom];
+    head.classList.toggle('has-photo', !!fotoSrc); head.classList.toggle('fem', j.equip === 'Femení');
+    if (fotoSrc) { const im = el('img', 'cut'); im.src = fotoSrc; im.alt = 'Foto de ' + nom; head.insertBefore(im, head.firstChild); }
+    else if (dorsal == null) { fo.appendChild(el('div', 'avatar' + (j.equip === 'Femení' ? ' f' : ''), nom.slice(0, 2).toUpperCase())); }
+    const meta = document.getElementById('fitxa-meta'); meta.replaceChildren(tagEquip(j.equip), document.createTextNode('  HCP ' + (last ? fmt1(last.hcp) : '—')));
+    const body = document.getElementById('fitxa-body'); body.replaceChildren();
+    if (!R) {
+      body.appendChild(el('p', 'note', 'No tenim permís per veure els resultats d\'aquest jugador a pitch.cat. Si et dona permís a la zona jugador, sortiran aquí.'));
+    } else {
+      const stats = el('div', 'stats');
+      const stat = (cls, h, v, d, t) => { const s = el('div', 'stat ' + cls); const vv = el('span', 'v' + (t ? ' ' + t : ''), v); s.append(el('h4', '', h), vv, el('div', 'd', d)); stats.appendChild(s); };
+      const tr = R.m5 != null && R.m5p != null ? Math.round((R.m5 - R.m5p) * 10) / 10 : null;
+      stat('', 'Mitjana 5 últims', R.m5 != null ? fmt1(R.m5) : '—', R.m5 == null ? 'Cap torneig individual en 12 mesos' : (R.k5 < 5 ? 'Només ' + R.k5 + ' torneigs individuals en 12 mesos' : (tr != null ? fmtS(tr) + ' vs els 5 anteriors' : 'cops bruts, torneigs individuals')), tr != null ? tone(tr) : '');
+      stat('s2', 'Millor volta individual', R.bi ? String(R.bi[3]) : '—', R.bi ? dataLabel(R.bi[0]) + ' · ' + R.bi[2] : '');
+      stat('s3', 'Millor volta parelles', R.bf ? String(R.bf[3]) : '—', R.bf ? dataLabel(R.bf[0]) + ' · ' + R.bf[2] + (R.bf[5] ? ' · ' + (MOD[R.bf[5]] || R.bf[5]) : '') + (R.bfp ? ' · amb ' + R.bfp : '') : '');
+      stat('s4', 'Torneigs (12 mesos)', String(R.n12), R.n + ' en total');
+      body.appendChild(stats);
+      if (R.top && R.top.length) {
+        body.appendChild(el('h5', '', 'Camps més jugats'));
+        const cs = el('div', 'camps');
+        R.top.forEach(([c, n]) => { const sp = el('span'); sp.append(el('b', '', String(n)), document.createTextNode(c)); cs.appendChild(sp); });
+        body.appendChild(cs);
+      }
+    }
+    if (serie.length > 1) {
+      body.appendChild(el('h5', '', 'Evolució del handicap'));
+      const box = el('div', 'spark'); body.appendChild(box);
+      ov.hidden = false;
+      const W = Math.max(260, box.clientWidth || 700), H = 120, m = { l: 28, r: 10, t: 8, b: 20 };
+      const pts = serie.map((s) => ({ d: parseMes(s.mes), hcp: s.hcp }));
+      const x = d3.scaleUtc(d3.extent(pts, (p) => p.d), [m.l, W - m.r]);
+      const y = d3.scaleLinear(d3.extent(pts, (p) => p.hcp), [H - m.b, m.t]).nice(4);
+      const svg = d3.select(box).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Evolució del handicap de ' + nom);
+      svg.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', '#EDE4D6');
+      svg.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x', m.l - 5).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').attr('font-size', 10).attr('fill', '#5E5563').text((t) => String(t).replace('.', ','));
+      svg.append('g').selectAll('text').data([pts[0], pts[pts.length - 1]]).join('text').attr('x', (p) => x(p.d)).attr('y', H - 4).attr('text-anchor', (p, i) => (i ? 'end' : 'start')).attr('font-size', 10).attr('fill', '#5E5563').text((p) => mesLabel(p.d.toISOString().slice(0, 7)));
+      svg.append('path').attr('fill', 'none').attr('stroke', j.equip === 'Femení' ? '#8FA617' : '#1F45C8').attr('stroke-width', 2.2).attr('d', d3.line().x((p) => x(p.d)).y((p) => y(p.hcp))(pts));
+      svg.append('g').selectAll('circle').data(pts).join('circle').attr('cx', (p) => x(p.d)).attr('cy', (p) => y(p.hcp)).attr('r', 2.4).attr('fill', '#DE5F78');
+    }
+    if (R && R.u && R.u.length) {
+      body.appendChild(el('h5', '', 'Últims torneigs'));
+      const lm = el('div', 'leg-mod'); const a1 = el('span', '', 'Individual'); a1.style.setProperty('--c', 'var(--pink-strong)'); const a2 = el('span', '', 'Parelles (fourball, foursome, greensome)'); a2.style.setProperty('--c', 'var(--blue)'); lm.append(a1, a2); body.appendChild(lm);
+      const wrap = el('div', 'tablewrap'); const t = el('table');
+      const th = el('thead'); const hr = el('tr'); ['Data', 'Torneig', 'Camp', 'Mod.', 'Cops', 'Nets'].forEach((h, i) => hr.appendChild(el('th', i >= 4 ? 'num' : '', h))); th.appendChild(hr); t.appendChild(th);
+      const tb = el('tbody');
+      R.u.forEach((u) => {
+        const isInd = u[3] === 'IN'; const r = el('tr', isInd ? 'r-ind' : 'r-par'); r.style.cursor = 'default';
+        r.appendChild(el('td', '', dataLabel(u[0])));
+        const tt = el('td', '', u[1]); tt.style.whiteSpace = 'normal'; tt.style.minWidth = '160px'; r.appendChild(tt);
+        r.appendChild(el('td', '', u[2]));
+        const md = el('td'); md.appendChild(el('span', 'mod ' + (isInd ? 'ind' : 'par'), (MOD[u[3]] || u[3]) + ' · ' + u[4])); r.appendChild(md);
+        const cb = el('td', 'num', String(u[5])); cb.style.fontWeight = '700'; r.appendChild(cb);
+        r.appendChild(el('td', 'num', String(u[6])));
+        tb.appendChild(r);
+      });
+      t.appendChild(tb); wrap.appendChild(t); body.appendChild(wrap);
+      body.appendChild(el('p', 'note', 'Cops = resultat brut de la volta. ST = stableford, ME = medal. Resultats de pitch.cat, actualitzats el ' + dataLabel(D.resultats_actualitzat) + '.'));
+    }
+    ov.hidden = false;
+    ov.querySelector('.close').focus();
+  }
+  (function () {
+    const ov = document.getElementById('fitxa');
+    const close = () => { ov.hidden = true; };
+    ov.querySelector('.close').addEventListener('click', close);
+    ov.addEventListener('click', (e) => { if (e.target === ov) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !ov.hidden) close(); });
+  })();
+
+  function render() {
+    document.querySelectorAll('[data-equip]').forEach((b) => b.setAttribute('aria-pressed', String(state.equip === b.dataset.equip)));
+    document.querySelectorAll('[data-equipcal]').forEach((b) => b.setAttribute('aria-pressed', String(state.equipCal === b.dataset.equipcal)));
+    document.querySelectorAll('[data-rang]').forEach((b) => b.setAttribute('aria-pressed', String(state.rang === b.dataset.rang)));
+    document.querySelectorAll('[data-tipus]').forEach((b) => b.setAttribute('aria-pressed', String(state.tipus === b.dataset.tipus)));
+    const rows = long();
+    drawTiles(rows); drawChart(rows); drawRanking(rows); drawCalendar();
+    const peu = document.getElementById('peu');
+    const lastUpd = d3.max(D.mesos, (m) => m.actualitzat) || D.generat;
+    peu.textContent = 'Handicaps oficials de pitch.cat (FCPP). Última actualització: ' + dataLabel(lastUpd) + '.';
+  }
+
+  document.querySelectorAll('[data-equip]').forEach((b) => b.addEventListener('click', () => { state.equip = b.dataset.equip; state.focus = null; save(); render(); }));
+  document.querySelectorAll('[data-rang]').forEach((b) => b.addEventListener('click', () => { state.rang = b.dataset.rang; save(); drawChart(long()); document.querySelectorAll('[data-rang]').forEach((x) => x.setAttribute('aria-pressed', String(state.rang === x.dataset.rang))); }));
+  document.querySelectorAll('[data-tipus]').forEach((b) => b.addEventListener('click', () => { state.tipus = b.dataset.tipus; save(); render(); }));
+  document.querySelectorAll('[data-equipcal]').forEach((b) => b.addEventListener('click', () => { state.equipCal = b.dataset.equipcal; save(); render(); }));
+  function showTab(name, push) {
+    if (name !== 'calendari') name = 'handicaps';
+    document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+    document.getElementById('handicaps').hidden = name !== 'handicaps';
+    document.getElementById('calendari-tab').hidden = name !== 'calendari';
+    if (push && location.hash !== '#' + name) { try { history.replaceState(null, '', '#' + name); } catch (e) { location.hash = name; } }
+    if (name === 'handicaps') drawChart(long());
+  }
+  document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab, true); window.scrollTo({ top: 0 }); }));
+  document.getElementById('tile-next').addEventListener('click', () => { showTab('calendari', true); window.scrollTo({ top: 0 }); });
+  window.addEventListener('hashchange', () => showTab(location.hash.slice(1), false));
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawChart(long()), 150); });
+  render();
+  showTab(location.hash.slice(1), false);
+})();
+</script>
+</body>
+</html>
