@@ -49,6 +49,25 @@ h1 .dot { color: var(--lime); }
 .sub { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .good { color: var(--good); } .bad { color: var(--bad); }
 
+
+/* Actualitat */
+.wk-nav { display: flex; align-items: center; gap: 10px; margin: 14px 0 18px; font-weight: 700; }
+.wk-btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; width: 34px; height: 34px; font-size: 20px; line-height: 1; cursor: pointer; color: var(--ink); }
+.wk-btn:disabled { opacity: .3; cursor: default; }
+.act-tiles .tile .who { font-weight: 700; font-size: 15px; margin-top: 4px; display: block; }
+.act-tiles .tile .who.click { cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.act-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.act-box { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.act-box h3 { margin: 0 0 10px; font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; color: var(--muted); }
+.act-list { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.act-list li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.act-list li:last-child { border-bottom: 0; }
+.act-list li .nm { font-weight: 600; cursor: pointer; }
+.act-list li .dt { color: var(--muted); font-size: 12px; }
+.act-list.bars li { position: relative; }
+.act-list.bars li .bar { position: absolute; left: 0; bottom: 2px; height: 3px; background: var(--pink-strong); border-radius: 2px; opacity: .55; }
+.act-list .buit { color: var(--muted); justify-content: flex-start; }
+
 /* Seccions */
 section { margin-bottom: 44px; scroll-margin-top: 16px; }
 h2 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.9rem; letter-spacing: .01em; line-height: 1; margin: 0 0 6px; }
@@ -118,6 +137,13 @@ tbody tr:hover td { background: #FDF3F6; }
 /* Fitxa de jugador */
 tbody#ranking tr { cursor: pointer; }
 .mitj5 { font-weight: 700; }
+.pos { white-space: nowrap; }
+.record { color: #E0A400; font-size: .8em; margin-right: 5px; vertical-align: 1px; }
+.fl { font-size: .7em; margin-left: 4px; vertical-align: 1px; }
+.fl.puja { color: #1E9E5A; }
+.fl.baixa { color: var(--ink); }
+.golf { font-weight: 700; color: var(--garnet); }
+.golf.poques { color: var(--muted); font-weight: 500; }
 .overlay { position: fixed; inset: 0; background: rgba(23,19,31,.55); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 12px; z-index: 50; overflow-y: auto; }
 .overlay[hidden] { display: none; }
 .card { background: var(--cream); width: min(760px, 100%); border-radius: 14px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
@@ -187,6 +213,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   <div class="tabs-in" role="tablist">
     <button class="tab" role="tab" id="t-handicaps" aria-controls="handicaps" aria-selected="true" data-tab="handicaps">Handicaps</button>
     <button class="tab" role="tab" id="t-calendari" aria-controls="calendari-tab" aria-selected="false" data-tab="calendari">Calendari</button>
+    <button class="tab" role="tab" id="t-actualitat" aria-controls="actualitat-tab" aria-selected="false" data-tab="actualitat">Actualitat</button>
   </div>
 </nav>
 
@@ -224,10 +251,10 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 
   <section id="classificacio">
     <h2>Classificació actual</h2>
-    <p class="note">Δ mes: canvi respecte a l'últim mes amb dada. Δ any: canvi respecte al desembre passat. Forma: 🟢 ha baixat, 🔴 ha pujat, 🟡 igual, 💀 sense moure's 4 mesos o més. Mitj. 5: mitjana de cops bruts dels 5 últims torneigs individuals (últims 12 mesos). Últim update: última actualització del handicap a pitch.cat. Toca un jugador per veure'n la fitxa.</p>
+    <p class="note">Δ mes: canvi respecte a l'últim mes amb dada. Δ any: canvi respecte al desembre passat. Forma: 🟢 ha baixat, 🔴 ha pujat, 🟡 igual, 💀 sense moure's 4 mesos o més. Mitj. 5: mitjana de cops bruts dels 5 últims torneigs individuals (últims 12 mesos). Golf: mitjana de cops bruts dels 5 millors dels 10 últims torneigs individuals, menys 54 (el par), per comparar-ho amb el HCP; en gris si té menys de 10 torneigs. Últim update: última actualització del handicap a pitch.cat. ★: està al millor handicap que ha tingut mai (segons l'historial de pitch.cat); passa el ratolí pel HCP per veure el seu millor. ▲▼: canvi de posició des de l'última actualització. Toca un jugador per veure'n la fitxa.</p>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>#</th><th>Jugador</th><th>Equip</th><th class="num">HCP</th><th class="num">Δ mes</th><th class="num">Δ any</th><th>Forma</th><th class="num">Mitj. 5</th><th>Últim update</th></tr></thead>
+        <thead><tr><th>#</th><th>Jugador</th><th>Equip</th><th class="num">HCP</th><th class="num">Δ mes</th><th class="num">Δ any</th><th>Forma</th><th class="num">Mitj. 5</th><th class="num">Golf</th><th>Últim update</th></tr></thead>
         <tbody id="ranking"></tbody>
       </table>
     </div>
@@ -264,6 +291,31 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     <div id="cal"></div>
   </section>
 
+  </div>
+
+
+  <div class="panel" id="actualitat-tab" role="tabpanel" aria-labelledby="t-actualitat" hidden>
+  <section style="margin-top: 24px">
+    <h2>La setmana</h2>
+    <div class="wk-nav"><button type="button" class="wk-btn" id="wk-prev" aria-label="Setmana anterior">‹</button><span id="wk-label">—</span><button type="button" class="wk-btn" id="wk-next" aria-label="Setmana següent">›</button></div>
+    <div class="tiles act-tiles" id="act-week"></div>
+    <div class="act-cols">
+      <div class="act-box"><h3>Moviments del HCP · setmana</h3><ol class="act-list" id="act-hc"></ol></div>
+      <div class="act-box"><h3>Moviments del HCP · <span id="act-mes-nom">mes</span></h3><ol class="act-list" id="act-mes"></ol></div>
+      <div class="act-box"><h3>★ Rècords personals nous</h3><ol class="act-list" id="act-rec"></ol></div>
+    </div>
+  </section>
+  <section>
+    <h2>L'any 2026</h2>
+    <div class="tiles act-tiles" id="act-any"></div>
+    <div class="act-cols">
+      <div class="act-box"><h3>Qui ha jugat més</h3><ol class="act-list bars" id="act-voltes"></ol></div>
+      <div class="act-box"><h3>Camps on més hem jugat</h3><ol class="act-list bars" id="act-camps"></ol></div>
+      <div class="act-box"><h3>Ratxes per sota del handicap</h3><p class="note" style="margin-top:0">Torneigs individuals seguits amb el net per sota de 54.</p><ol class="act-list" id="act-ratxes"></ol></div>
+      <div class="act-box"><h3>Fa dies que no juga</h3><ol class="act-list" id="act-inactius"></ol></div>
+    </div>
+    <p class="note" id="act-peu"></p>
+  </section>
   </div>
 
   <div class="overlay" id="fitxa" hidden role="dialog" aria-modal="true" aria-labelledby="fitxa-nom">
@@ -368,14 +420,16 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 
   function drawRanking(rows) {
     const tb = document.getElementById('ranking'); tb.replaceChildren();
-    ranking(rows).forEach((r, i) => {
+    const rk = ranking(rows); const PA = D.hcp_anterior || {};
+    const prevPos = new Map(rk.map((r) => ({ j: r.jugador, h: PA[r.jugador] != null ? PA[r.jugador] : r.hcp })).sort((a, b) => a.h - b.h || a.j.localeCompare(b.j)).map((x, i) => [x.j, i]));
+    rk.forEach((r, i) => {
       const tr = document.createElement('tr');
       const td = (txt, cls) => { const c = el('td', cls || '', txt); tr.appendChild(c); return c; };
-      td(String(i + 1)); td(r.jugador).style.fontWeight = '600';
+      { const pc = td(null, 'pos'); const pp = prevPos.get(r.jugador); if (pp != null && pp !== i) { const a = el('span', pp > i ? 'fl puja' : 'fl baixa', pp > i ? '▲' : '▼'); a.title = (pp > i ? 'Puja ' : 'Baixa ') + Math.abs(pp - i) + (Math.abs(pp - i) === 1 ? ' posició' : ' posicions') + ' des de l\'última actualització'; pc.append(String(i + 1)); pc.appendChild(a); } else pc.append(String(i + 1)); } td(r.jugador).style.fontWeight = '600';
       const te = td(null); te.appendChild(tagEquip(r.equip));
-      td(fmt1(r.hcp), 'num');
+      { const hc = td(fmt1(r.hcp), 'num'); const mn = (D.hcp_min || {})[r.jugador]; if (mn) { const rec = r.hcp <= mn[0]; hc.title = rec ? 'Rècord: el millor handicap que ha tingut mai' : 'Millor handicap: ' + fmt1(mn[0]) + ' (' + dataLabel(mn[1]) + ')'; if (rec) { const st = el('span', 'record', '★'); hc.prepend(st); } } }
       td(fmtS(r.d_mes), 'num ' + tone(r.d_mes)); td(fmtS(r.d_any), 'num ' + tone(r.d_any));
-      td(r.forma); const R5 = (D.resultats || {})[r.jugador]; td(R5 && R5.m5 != null ? fmt1(R5.m5) : '—', 'num mitj5'); td(dataLabel(r.upd));
+      td(r.forma); const R5 = (D.resultats || {})[r.jugador]; td(R5 && R5.m5 != null ? fmt1(R5.m5) : '—', 'num mitj5'); { const gc = td(R5 && R5.g != null ? fmt1(Math.round((R5.g - 54) * 10) / 10) : '—', 'num golf'); if (R5 && R5.g != null) gc.title = R5.gn < 10 ? 'Només ' + R5.gn + ' torneigs individuals: mitjana dels ' + Math.min(5, R5.gn) + ' millors, ' + fmt1(R5.g) + ' cops' : 'Mitjana dels 5 millors dels 10 últims torneigs individuals: ' + fmt1(R5.g) + ' cops'; if (R5 && R5.gn < 10) gc.classList.add('poques'); } td(dataLabel(r.upd));
       tr.addEventListener('click', () => openPlayer(r.jugador));
       tb.appendChild(tr);
     });
@@ -583,11 +637,77 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   document.querySelectorAll('[data-rang]').forEach((b) => b.addEventListener('click', () => { state.rang = b.dataset.rang; save(); drawChart(long()); document.querySelectorAll('[data-rang]').forEach((x) => x.setAttribute('aria-pressed', String(state.rang === x.dataset.rang))); }));
   document.querySelectorAll('[data-tipus]').forEach((b) => b.addEventListener('click', () => { state.tipus = b.dataset.tipus; save(); render(); }));
   document.querySelectorAll('[data-equipcal]').forEach((b) => b.addEventListener('click', () => { state.equipCal = b.dataset.equipcal; save(); render(); }));
+
+  // ---- Actualitat
+  const A = D.actualitat || null; const WEEKS = A ? Object.keys(A.setmanes).sort() : []; let wkIx = WEEKS.length - 1;
+  const MOD_C = { FB: 'fourball', FS: 'foursome', GR: 'greensome', GH: 'greensome' };
+  const addD = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  const nmEl = (n) => { const s = el('span', 'nm', n); s.addEventListener('click', () => openPlayer(n)); return s; };
+  const li = (left, right, sub) => { const l = el('li'); const a = el('span'); (Array.isArray(left) ? left : [left]).forEach((x) => a.append(x)); if (sub) { a.append(' '); a.appendChild(el('span', 'dt', sub)); } l.append(a); if (right != null) l.append(typeof right === 'string' ? el('span', '', right) : right); return l; };
+  const buit = (txt) => { const l = el('li', 'buit', txt); return l; };
+  function actTile(cls, titol, big, who, sub, nom) { const t = el('div', 'tile ' + cls); t.appendChild(el('h3', '', titol)); t.appendChild(el('span', 'big', big)); const w = el('span', 'who' + (nom ? ' click' : ''), who); if (nom) w.addEventListener('click', () => openPlayer(nom)); t.appendChild(w); if (sub) t.appendChild(el('span', 'sub', sub)); return t; }
+  const roundTile = (cls, titol, r, parella) => r ? actTile(cls, titol, String(r.cb), parella && r.par ? r.nom + ' i ' + r.par : r.nom, r.c + ' · ' + dataLabel(r.d) + ' · net ' + r.cn + (parella && MOD_C[r.m] ? ' · ' + MOD_C[r.m] : ''), r.nom) : actTile(cls, titol, '—', 'Cap volta', '', null);
+  function drawActualitat() {
+    if (!A || !WEEKS.length) return;
+    const w = WEEKS[wkIx], S = A.setmanes[w], fi = addD(w, 6);
+    const [y1, m1, d1] = w.split('-'), [y2, m2, d2] = fi.split('-');
+    document.getElementById('wk-label').textContent = 'Setmana del ' + (+d1) + (m1 !== m2 ? ' de ' + MESOS_LLARG[+m1 - 1].toLowerCase() : '') + ' al ' + (+d2) + ' de ' + MESOS_LLARG[+m2 - 1].toLowerCase() + ' de ' + y2;
+    document.getElementById('wk-prev').disabled = wkIx <= 0; document.getElementById('wk-next').disabled = wkIx >= WEEKS.length - 1;
+    const tw = document.getElementById('act-week'); tw.replaceChildren();
+    const top = S.n[0]; const empat = S.n.filter((x) => x[1] === top[1]).map((x) => x[0]);
+    const tot = S.n.reduce((a, x) => a + x[1], 0);
+    tw.appendChild(actTile('', 'Qui més ha jugat', String(top[1]), empat.join(' i '), (top[1] === 1 ? 'torneig' : 'torneigs') + ' · l’equip n’ha jugat ' + tot, empat.length === 1 ? empat[0] : null));
+    tw.appendChild(roundTile('t2', 'Millor volta individual', S.bi));
+    tw.appendChild(roundTile('t3', 'Millor volta de parelles', S.bp, true));
+    tw.appendChild(roundTile('t4', 'Millor volta femenina', S.bf));
+    const hc = document.getElementById('act-hc'); hc.replaceChildren();
+    const baixen = S.hc.filter((x) => x[1] < 0), pugen = S.hc.filter((x) => x[1] > 0);
+    baixen.slice(0, 6).forEach((x) => hc.appendChild(li([nmEl(x[0])], el('span', 'good', fmtS(x[1])), fmt1(x[2]) + ' → ' + fmt1(x[3]))));
+    if (pugen.length) hc.appendChild(li([el('span', 'dt', 'Han pujat: ' + pugen.map((x) => x[0] + ' ' + fmtS(x[1])).join(', '))]));
+    if (!S.hc.length) hc.appendChild(buit('Cap moviment.'));
+    // mes de la setmana
+    const mes = fi.slice(0, 7); const mi = D.mesos.findIndex((m) => m.mes === mes);
+    document.getElementById('act-mes-nom').textContent = MESOS_LLARG[+fi.slice(5, 7) - 1];
+    const ml = document.getElementById('act-mes'); ml.replaceChildren();
+    if (mi > 0) { const cur = D.mesos[mi].hcp, prev = D.mesos[mi - 1].hcp; const ds = Object.keys(cur).filter((n) => prev[n] != null).map((n) => [n, Math.round((cur[n] - prev[n]) * 10) / 10]).filter((x) => x[1] < 0).sort((a, b) => a[1] - b[1]);
+      ds.slice(0, 6).forEach((x) => ml.appendChild(li([nmEl(x[0])], el('span', 'good', fmtS(x[1])), fmt1(prev[x[0]]) + ' → ' + fmt1(cur[x[0]]))));
+      if (!ds.length) ml.appendChild(buit('Ningú ha baixat aquest mes.')); } else ml.appendChild(buit('Sense dades del mes.'));
+    const rc = document.getElementById('act-rec'); rc.replaceChildren();
+    S.rec.forEach((x) => rc.appendChild(li([el('span', 'record', '★'), nmEl(x[0])], fmt1(x[1]))));
+    if (!S.rec.length) rc.appendChild(buit('Cap rècord aquesta setmana.'));
+  }
+  function drawAny() {
+    if (!A) return; const Y = A.any; const ta = document.getElementById('act-any'); ta.replaceChildren();
+    ta.appendChild(roundTile('t2', 'Volta més baixa', Y.bi));
+    ta.appendChild(roundTile('t3', 'Millor de parelles', Y.bp, true));
+    ta.appendChild(roundTile('t4', 'Millor femenina', Y.bf));
+    const ratx = Object.entries(Y.ratxes).filter((x) => x[1][1] > 0).sort((a, b) => b[1][1] - a[1][1] || (a[1][2] < b[1][2] ? 1 : -1));
+    if (ratx.length) ta.appendChild(actTile('', 'Ratxa més llarga', String(ratx[0][1][1]), ratx[0][0], 'torneigs seguits per sota del handicap', ratx[0][0]));
+    const mx = Y.voltes[0][1]; const vl = document.getElementById('act-voltes'); vl.replaceChildren();
+    Y.voltes.slice(0, 8).forEach((x) => { const l = li([nmEl(x[0])], String(x[1])); const b = el('span', 'bar'); b.style.width = (x[1] / mx * 100) + '%'; l.appendChild(b); vl.appendChild(l); });
+    const cm = Y.camps[0][1]; const cl = document.getElementById('act-camps'); cl.replaceChildren();
+    Y.camps.forEach((x) => { const l = li([el('span', '', x[0])], x[1] + ' voltes'); const b = el('span', 'bar'); b.style.width = (x[1] / cm * 100) + '%'; l.appendChild(b); cl.appendChild(l); });
+    const rl = document.getElementById('act-ratxes'); rl.replaceChildren();
+    const ara = Object.entries(Y.ratxes).filter((x) => x[1][0] > 0).sort((a, b) => b[1][0] - a[1][0]);
+    if (ara.length) rl.appendChild(li([el('span', 'dt', 'En ratxa ara: ' + ara.map((x) => x[0] + ' (' + x[1][0] + ')').join(', '))]));
+    ratx.slice(0, 5).forEach((x) => rl.appendChild(li([nmEl(x[0])], String(x[1][1]), 'fins al ' + dataLabel(x[1][2]))));
+    const il = document.getElementById('act-inactius'); il.replaceChildren();
+    const avui = A && D.actualitat_data ? D.actualitat_data : D.generat;
+    const dies = (d) => Math.round((new Date(avui) - new Date(d)) / 864e5);
+    Object.entries(D.resultats || {}).filter(([n, r]) => r.u && r.u[0]).map(([n, r]) => [n, r.u[0][0]]).sort((a, b) => (a[1] < b[1] ? -1 : 1)).slice(0, 5)
+      .forEach((x) => il.appendChild(li([nmEl(x[0])], dies(x[1]) + ' dies', 'des del ' + dataLabel(x[1]))));
+    document.getElementById('act-peu').textContent = 'Dades de pitch.cat recollides el ' + dataLabel(avui) + '. Les voltes es comparen en cops bruts.';
+  }
+  document.getElementById('wk-prev').addEventListener('click', () => { if (wkIx > 0) { wkIx--; drawActualitat(); } });
+  document.getElementById('wk-next').addEventListener('click', () => { if (wkIx < WEEKS.length - 1) { wkIx++; drawActualitat(); } });
+  drawActualitat(); drawAny();
+
   function showTab(name, push) {
-    if (name !== 'calendari') name = 'handicaps';
+    if (name !== 'calendari' && name !== 'actualitat') name = 'handicaps';
     document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
     document.getElementById('handicaps').hidden = name !== 'handicaps';
     document.getElementById('calendari-tab').hidden = name !== 'calendari';
+    document.getElementById('actualitat-tab').hidden = name !== 'actualitat';
     if (push && location.hash !== '#' + name) { try { history.replaceState(null, '', '#' + name); } catch (e) { location.hash = name; } }
     if (name === 'handicaps') drawChart(long());
   }
