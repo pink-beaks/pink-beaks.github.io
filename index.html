@@ -311,7 +311,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     <div class="act-cols">
       <div class="act-box"><h3>Qui ha jugat més</h3><ol class="act-list bars" id="act-voltes"></ol></div>
       <div class="act-box"><h3>Camps on més hem jugat</h3><ol class="act-list bars" id="act-camps"></ol></div>
-      <div class="act-box"><h3>Ratxes per sota del handicap</h3><p class="note" style="margin-top:0">Torneigs individuals seguits amb el net per sota de 54.</p><ol class="act-list" id="act-ratxes"></ol></div>
+      <div class="act-box"><h3>Historial del número 1</h3><p class="note" style="margin-top:0">Qui ha tingut el handicap més baix de l'equip cada mes, des del desembre de 2024.</p><ol class="act-list bars" id="act-n1-tot"></ol><ol class="act-list" id="act-n1" style="margin-top:10px"></ol></div>
       <div class="act-box"><h3>Fa dies que no juga</h3><ol class="act-list" id="act-inactius"></ol></div>
     </div>
     <p class="note" id="act-peu"></p>
@@ -329,7 +329,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script src="data.js"></script>
+<script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
 <script src="fotos.js"></script>
 <script>
 (function () {
@@ -647,6 +647,16 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   const buit = (txt) => { const l = el('li', 'buit', txt); return l; };
   function actTile(cls, titol, big, who, sub, nom) { const t = el('div', 'tile ' + cls); t.appendChild(el('h3', '', titol)); t.appendChild(el('span', 'big', big)); const w = el('span', 'who' + (nom ? ' click' : ''), who); if (nom) w.addEventListener('click', () => openPlayer(nom)); t.appendChild(w); if (sub) t.appendChild(el('span', 'sub', sub)); return t; }
   const roundTile = (cls, titol, r, parella) => r ? actTile(cls, titol, String(r.cb), parella && r.par ? r.nom + ' i ' + r.par : r.nom, r.c + ' · ' + dataLabel(r.d) + ' · net ' + r.cn + (parella && MOD_C[r.m] ? ' · ' + MOD_C[r.m] : ''), r.nom) : actTile(cls, titol, '—', 'Cap volta', '', null);
+  function numero1() {
+    const lider = {}; const hv = {};
+    D.mesos.forEach((m) => { const e = Object.entries(m.hcp).filter((x) => x[1] != null).sort((a, b) => a[1] - b[1]); if (e.length) { lider[m.mes] = e[0][0]; hv[m.mes] = e[0][1]; } });
+    const ultim = D.mesos[D.mesos.length - 1].mes; const mesos = []; let y = 2024, mo = 12;
+    while (true) { const k = y + '-' + String(mo).padStart(2, '0'); if (k > ultim) break; mesos.push(k); mo++; if (mo > 12) { mo = 1; y++; } }
+    const seq = mesos.map((k, i) => { if (lider[k]) return [k, lider[k], hv[k]]; const prev = mesos.slice(0, i).reverse().find((x) => lider[x]); const next = mesos.slice(i + 1).find((x) => lider[x]); const p = prev && lider[prev]; const q = next ? lider[next] : null; return [k, p && (!q || p === q) ? p : (p || q), null]; });
+    const trams = []; seq.forEach(([k, n, h]) => { const t = trams[trams.length - 1]; if (t && t.nom === n) { t.fins = k; t.n++; if (h != null) t.h = h; } else trams.push({ nom: n, de: k, fins: k, n: 1, h }); });
+    const tot = {}; trams.forEach((t) => { tot[t.nom] = (tot[t.nom] || 0) + t.n; });
+    return { trams: trams.reverse(), tot: Object.entries(tot).sort((a, b) => b[1] - a[1]) };
+  }
   function drawActualitat() {
     if (!A || !WEEKS.length) return;
     const w = WEEKS[wkIx], S = A.setmanes[w], fi = addD(w, 6);
@@ -682,15 +692,15 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     ta.appendChild(roundTile('t3', 'Millor de parelles', Y.bp, true));
     ta.appendChild(roundTile('t4', 'Millor femenina', Y.bf));
     const ratx = Object.entries(Y.ratxes).filter((x) => x[1][1] > 0).sort((a, b) => b[1][1] - a[1][1] || (a[1][2] < b[1][2] ? 1 : -1));
-    if (ratx.length) ta.appendChild(actTile('', 'Ratxa més llarga', String(ratx[0][1][1]), ratx[0][0], 'torneigs seguits per sota del handicap', ratx[0][0]));
+    const N1 = numero1(); if (N1.trams.length) { const t0 = N1.trams[0]; ta.appendChild(actTile('', 'Número 1 ara', String(t0.n), t0.nom, (t0.n === 1 ? 'mes' : 'mesos seguits') + ' · ' + fmt1(t0.h), t0.nom)); }
     const mx = Y.voltes[0][1]; const vl = document.getElementById('act-voltes'); vl.replaceChildren();
     Y.voltes.slice(0, 8).forEach((x) => { const l = li([nmEl(x[0])], String(x[1])); const b = el('span', 'bar'); b.style.width = (x[1] / mx * 100) + '%'; l.appendChild(b); vl.appendChild(l); });
     const cm = Y.camps[0][1]; const cl = document.getElementById('act-camps'); cl.replaceChildren();
     Y.camps.forEach((x) => { const l = li([el('span', '', x[0])], x[1] + ' voltes'); const b = el('span', 'bar'); b.style.width = (x[1] / cm * 100) + '%'; l.appendChild(b); cl.appendChild(l); });
-    const rl = document.getElementById('act-ratxes'); rl.replaceChildren();
-    const ara = Object.entries(Y.ratxes).filter((x) => x[1][0] > 0).sort((a, b) => b[1][0] - a[1][0]);
-    if (ara.length) rl.appendChild(li([el('span', 'dt', 'En ratxa ara: ' + ara.map((x) => x[0] + ' (' + x[1][0] + ')').join(', '))]));
-    ratx.slice(0, 5).forEach((x) => rl.appendChild(li([nmEl(x[0])], String(x[1][1]), 'fins al ' + dataLabel(x[1][2]))));
+    const n1t = document.getElementById('act-n1-tot'); n1t.replaceChildren(); const mxn = N1.tot.length ? N1.tot[0][1] : 1;
+    N1.tot.forEach((x) => { const l = li([nmEl(x[0])], x[1] + (x[1] === 1 ? ' mes' : ' mesos')); const b = el('span', 'bar'); b.style.width = (x[1] / mxn * 100) + '%'; l.appendChild(b); n1t.appendChild(l); });
+    const n1 = document.getElementById('act-n1'); n1.replaceChildren();
+    N1.trams.forEach((t) => n1.appendChild(li([nmEl(t.nom)], t.n + (t.n === 1 ? ' mes' : ' mesos'), mesLabel(t.de) + (t.de !== t.fins ? ' – ' + mesLabel(t.fins) : ''))));
     const il = document.getElementById('act-inactius'); il.replaceChildren();
     const avui = A && D.actualitat_data ? D.actualitat_data : D.generat;
     const dies = (d) => Math.round((new Date(avui) - new Date(d)) / 864e5);
