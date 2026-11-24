@@ -1,0 +1,44 @@
+name: Actualitzar handicaps
+
+on:
+  schedule:
+    - cron: '17 2 * * *'   # cada nit cap a les 3:17 (hora de Barcelona a l'hivern)
+  workflow_dispatch:        # botó "Run workflow" per executar-ho a mà
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: actualitzar
+  cancel-in-progress: false
+
+jobs:
+  actualitzar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Instal·lar dependències
+        run: npm install --no-save node-html-parser@6
+      - name: Consultar pitch.cat i refer data.js
+        env:
+          PITCH_USER: ${{ secrets.PITCH_USER }}
+          PITCH_PASS: ${{ secrets.PITCH_PASS }}
+          PB_JUGADORS: ${{ secrets.PB_JUGADORS }}
+        run: node scripts/actualitzar.mjs
+      - name: Desar els canvis
+        if: always()
+        run: |
+          git config user.name "pink-beaks-bot"
+          git config user.email "pink-beaks@users.noreply.github.com"
+          git add data.js estat.json
+          if git diff --cached --quiet; then echo "Sense canvis"; else git commit -m "Actualització automàtica $(TZ=Europe/Madrid date +%Y-%m-%d)" && git push; fi
+      - name: Refer la web (GitHub Pages)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "No s'ha pogut demanar la reconstrucció (es farà sola)"
