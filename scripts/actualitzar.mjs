@@ -156,13 +156,31 @@ async function actualitat(ALL, OFF, parella) {
       if (a == null || b == null) continue; const dl = r1(b - a); if (dl) hc.push([n, dl, a, b]);
       const prior = INn.filter((r) => r.d < w).flatMap((r) => [r.hi, r.hf]).filter((v) => v != null); if (prior.length && dl < 0 && b < Math.min(...prior)) rec.push([n, b]);
     }
-    S[w] = { n: Object.entries(cnt).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), bi: pickR(best(IN)), bp: bpo || null, bf: pickR(best(IN.filter((r) => FEM.has(r.nom)))) || null, hc: hc.sort((x, y) => x[1] - y[1]), rec };
+    const vist = new Map();
+    for (const r of rs.slice().sort((a, b) => (a.dt < b.dt ? 1 : a.dt > b.dt ? -1 : 0))) {
+      const k = PAR.includes(r.m) && r.id ? r.id + '|' + r.m + '|' + r.cb : null;
+      if (k && vist.has(k)) { const row = vist.get(k); if (!row[1].split(' i ').includes(r.nom)) row[1] += ' i ' + r.nom; continue; }
+      const row = [r.d, r.nom, r.t, r.c, r.m, r.f, r.cb, r.cn]; vist.set(k || Symbol(), row);
+    }
+    const v = [...vist.values()];
+    S[w] = { v, n: Object.entries(cnt).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), bi: pickR(best(IN)), bp: bpo || null, bf: pickR(best(IN.filter((r) => FEM.has(r.nom)))) || null, hc: hc.sort((x, y) => x[1] - y[1]), rec };
   }
   const ANY = AVUI.slice(0, 4) + '-01-01'; const Y = flat.filter((r) => r.d >= ANY);
   const yp = best(Y.filter((r) => PAR.includes(r.m))); const ypo = pickR(yp); if (yp && yp.id) { try { ypo.par = await parella(yp.nom, yp.id); } catch (e) { /* res */ } }
   const camps = {}; Y.forEach((r) => { camps[r.c] = (camps[r.c] || 0) + 1; }); const voltes = {}; Y.forEach((r) => { voltes[r.nom] = (voltes[r.nom] || 0) + 1; });
   const ratxes = {}; for (const [n, rs] of Object.entries(ALL)) { let bS = 0, bE = null, run = 0; for (const r of rs.filter((r) => r.m === 'IN' && r.cn)) { if (r.cn < 54) { run++; if (r.d >= ANY && run > bS) { bS = run; bE = r.d; } } else run = 0; } ratxes[n] = [run, bS, bE]; }
   return { setmanes: S, any: { bi: pickR(best(Y.filter((r) => r.m === 'IN'))), bp: ypo || null, bf: pickR(best(Y.filter((r) => r.m === 'IN' && FEM.has(r.nom)))) || null, camps: Object.entries(camps).sort((a, b) => b[1] - a[1]).slice(0, 5), voltes: Object.entries(voltes).sort((a, b) => b[1] - a[1]), ratxes } };
+}
+
+function numero1Setmanes(ALL, OFF) {
+  const NOMS = ['Gery', 'Oriol', 'Xoldi'].filter((n) => ALL[n]);
+  const ultimDg = addD(monday(AVUI), -1); const out = []; let prev = null;
+  for (let dg = '2024-12-01'; dg <= ultimDg; dg = addD(dg, 7)) {
+    const h = NOMS.map((n) => { const IN = ALL[n].filter((r) => r.m === 'IN' && r.hi != null); const nx = IN.find((r) => r.d > dg); if (nx) return nx.hi; const lb = [...IN].reverse().find((r) => r.d <= dg); return OFF[n] != null ? OFF[n] : (lb ? lb.hf : null); });
+    let best = null; NOMS.forEach((n, i) => { if (h[i] == null) return; if (best == null || h[i] < h[best] || (h[i] === h[best] && n === prev)) best = i; });
+    if (best == null) continue; prev = NOMS[best]; out.push([dg, NOMS[best], ...h]);
+  }
+  return { noms: NOMS, setmanes: out };
 }
 
 // ---------- principal
@@ -193,6 +211,7 @@ async function main() {
     for (const [n, v] of Object.entries(OFF)) if (v != null && MIN[n] && v < MIN[n][0]) MIN[n] = [v, AVUI];
     D.resultats = R; D.hcp_min = MIN; D.resultats_actualitzat = AVUI;
     try { D.actualitat = await actualitat(ALL, OFF, parella); D.actualitat_data = AVUI; } catch (e) { estat.errors.push('Actualitat: ' + e.message); }
+    try { D.n1 = numero1Setmanes(ALL, OFF); } catch (e) { estat.errors.push('Número 1: ' + e.message); }
   }
   D.generat = AVUI;
   const out = 'window.PB_DATA = ' + JSON.stringify(D) + ';\n';
