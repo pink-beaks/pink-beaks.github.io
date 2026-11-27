@@ -3,6 +3,7 @@
 //        "sota_par" = nombre de voltes individuals sota par (amb "marge": -5 compta les voltes de -5 o millor, és a dir 49 cops o menys)
 //        "volta"    = fer una volta individual d'aquests cops o menys (p. ex. 60)
 //        "proves"   = jugar totes les proves del calendari d'aquests tipus ("proves": ["Interclubs", "Rànquing individual"])
+//        "manual"   = objectiu que s'actualitza a mà: "estat": "fet" o "no" (sense estat = pendent), "nota" = text que es mostra
 //        "ranquing" = posició a Competicions Oficials de pitch.cat ("seccio" = nom de l'apartat), objectiu = posició màxima
 //        "parelles" = millor volta de parelles respecte al par (p. ex. -10)
 //        "hcp"      = arribar a aquest handicap
@@ -33,5 +34,10 @@ window.PB_OBJECTIUS = {
     { "tipus": "hcp", "objectiu": 7, "text": "Baixar a handicap 7" },
     { "tipus": "volta", "objectiu": 59, "text": "Una volta de 59" },
     { "tipus": "parelles", "objectiu": -4, "text": "Volta en parelles de -4" }
+  ],
+  "Leti": [
+    { "tipus": "volta", "objectiu": 60, "text": "Una volta de 60" },
+    { "tipus": "hcp", "objectiu": 9.5, "text": "Baixar a handicap 9,5" },
+    { "tipus": "manual", "text": "Que les Pink Eagles no quedem últimes el primer any", "nota": "Es veurà al final de l'Interclubs femení" }
   ]
 };

@@ -234,8 +234,8 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 <header class="head">
   <div class="head-in">
     <img class="escut" src="escut.png" alt="Escut dels Pink Beaks">
-    <h1>Pink Beaks<span class="dot">.</span></h1>
-    <p class="lede" id="lede">Handicaps i calendari de la temporada.</p>
+    <h1>Pink Beaks</h1>
+    <p class="lede">El lloc on trobaràs tota la informació de l'equip.</p>
   </div>
 </header>
 
@@ -257,7 +257,18 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     <div class="tile t4" id="tile-next" title="Veure el calendari"><h3>Propera prova</h3><span class="big" id="k-next">—</span><span class="sub" id="k-next-nom">—</span></div>
   </div>
 
-  <section id="evolucio">
+  <section id="classificacio">
+    <h2>Classificació actual</h2>
+    <div class="hint"><span class="ic">👇</span><span>Toca un jugador per veure les seves <b>estadístiques personals</b></span></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>#</th><th>Jugador</th><th class="num">HCP</th><th class="num">Δ mes</th><th>Forma</th><th class="num">Mitj. 5</th><th>Últim update</th><th></th></tr></thead>
+        <tbody id="ranking"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="evolucio" style="margin-top: 32px">
     <h2>Evolució del handicap</h2>
     <div class="controls" style="margin: 12px 0 0">
       <span><span class="seg-label">Període</span>
@@ -268,17 +279,6 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     </div>
     <p class="note">Un punt per mes i jugador. La línia discontínua és la mitjana de l'equip.</p>
     <div class="chart" id="chart"></div>
-  </section>
-
-  <section id="classificacio">
-    <h2>Classificació actual</h2>
-    <div class="hint"><span class="ic">👇</span><span>Toca un jugador per veure les seves <b>estadístiques personals</b></span></div>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>#</th><th>Jugador</th><th class="num">HCP</th><th class="num">Δ mes</th><th>Forma</th><th class="num">Mitj. 5</th><th>Últim update</th><th></th></tr></thead>
-        <tbody id="ranking"></tbody>
-      </table>
-    </div>
   </section>
 
   </div>
@@ -428,14 +428,6 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     const nx = calendari(state.equip, '').find((e) => parseDia(e.data) >= avuiUTC);
     set('k-next', nx ? dataLabel(nx.data) : '—');
     set('k-next-nom', nx ? nx.prova + ' · ' + nx.camp : 'Temporada acabada');
-    // Lede
-    const lede = document.getElementById('lede');
-    lede.replaceChildren();
-    if (r) {
-      lede.append('La mitjana de l\'equip és ', el('b', '', fmt1(r.mitjana)), ', ');
-      lede.append(el('span', tone(r.d_any), fmtS(r.d_any)), ' respecte al desembre passat.');
-      if (r.millora) lede.append(' Qui més ha baixat aquest any és ', el('b', '', r.millora.jugador), ' (', el('span', tone(r.millora.d_any), fmtS(r.millora.d_any)), ').');
-    }
   }
 
   function drawRanking(rows) {
@@ -556,7 +548,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   const OBJ_ANY = String(window.PB_OBJECTIUS_ANY || '2027');
   function drawObjectius(nom, body) {
     const L = (window.PB_OBJECTIUS || {})[nom]; if (!L || !L.length) return;
-    const O = ((D.objectius || {})[nom]) || {};
+    const O = Object.assign({}, ((D.objectius || {})[nom]) || {}); if (O.hcp == null) { const mm = D.mesos[D.mesos.length - 1]; if (mm && mm.hcp[nom] != null) O.hcp = mm.hcp[nom]; }
     body.appendChild(el('h5', '', 'Objectius ' + OBJ_ANY));
     const box = el('div', 'obj');
     L.forEach((o) => {
@@ -569,6 +561,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
       else if (o.tipus === 'hcp') { val = O.hcp; const ini = O.hcp_ini != null ? O.hcp_ini : val; pct = ini != null && ini > o.objectiu ? (ini - val) / (ini - o.objectiu) : (val != null && val <= o.objectiu ? 1 : 0); fet = val != null && val <= o.objectiu; txt = fmt1(val) + ' → ' + fmt1(o.objectiu); st = fet ? 'Aconseguit!' : 'Handicap actual'; }
       else if (o.tipus === 'volta') { const cb = O.cbs || []; val = cb.length ? Math.min(...cb) : null; fet = val != null && val <= o.objectiu; pct = val == null ? 0 : fet ? 1 : Math.max(0, 1 - (val - o.objectiu) / 10); txt = val == null ? '—' : String(val); st = fet ? 'Aconseguit!' : val == null ? 'Encara cap volta individual' : 'Millor volta individual: ' + val + ' cops'; }
       else if (o.tipus === 'proves') { const tp = o.proves || []; const evs = D.calendari.filter((e) => (e.equip === 'Tots' || e.equip === (D.jugadors.find((j) => j.nom === nom) || {}).equip) && tp.some((t) => e.tipus.startsWith(t))); const dies = new Set(O.dates || []); const passades = evs.filter((e) => parseDia(e.data) < avuiUTC); const jug = evs.filter((e) => dies.has(e.data)).length; const perd = passades.filter((e) => !dies.has(e.data)).length; val = jug; pct = evs.length ? jug / evs.length : 0; fet = evs.length > 0 && jug >= evs.length; txt = jug + ' / ' + evs.length; st = fet ? 'Aconseguit!' : perd ? 'N\'ha perdut ' + perd : passades.length ? 'De moment, totes jugades' : 'Encara no ha començat'; if (perd && !fet) it0 = true; }
+      else if (o.tipus === 'manual') { fet = o.estat === 'fet'; const no = o.estat === 'no'; pct = fet ? 1 : 0; txt = fet ? '✓' : no ? '✗' : '…'; st = fet ? 'Aconseguit!' : no ? 'No aconseguit' : (o.nota || 'Pendent'); }
       else if (o.tipus === 'voltes') { val = n(O.voltes); pct = val / o.objectiu; fet = val >= o.objectiu; txt = val + ' / ' + o.objectiu; st = fet ? 'Aconseguit!' : 'En falten ' + (o.objectiu - val); }
       const it = el('div', 'obj-it' + (fet ? ' fet' : ''));
       const top = el('div', 'top'); top.append(el('span', 'tt', o.text), el('span', 'val', txt)); it.appendChild(top);
@@ -610,7 +603,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
       stat('s4', 'Torneigs (12 mesos)', String(R.n12), R.n + ' en total');
       const rkj = ranking(serie.map((x) => ({ jugador: nom, equip: j.equip, mes: x.mes, hcp: x.hcp })))[0];
       if (rkj) stat('', 'Δ any', fmtS(rkj.d_any), 'HCP respecte al desembre passat', tone(rkj.d_any));
-      if (R.g != null) stat('s2', 'Pink Hcp', fmt1(Math.round((R.g - 54) * 10) / 10), R.gn < 10 ? 'Només ' + R.gn + ' torneigs individuals: mitjana dels ' + Math.min(5, R.gn) + ' millors, menys 54' : 'Mitjana dels 5 millors dels 10 últims torneigs individuals, menys 54');
+      if (R.g != null) stat('s2', 'Pink Hcp', fmt1(Math.round((R.g - 54) * 10) / 10), R.gn < 10 ? 'Handicap comptant els ' + Math.min(5, R.gn) + ' millors resultats de les ' + R.gn + ' últimes partides individuals' : 'Handicap comptant els 5 millors resultats de les 10 últimes partides individuals');
       body.appendChild(stats);
       if (R.top && R.top.length) {
         body.appendChild(el('h5', '', 'Camps més jugats'));
@@ -748,7 +741,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     ta.appendChild(roundTile('t3', 'Millor de parelles', Y.bp, true));
     ta.appendChild(roundTile('t4', 'Millor femenina', Y.bf));
     const ratx = Object.entries(Y.ratxes).filter((x) => x[1][1] > 0).sort((a, b) => b[1][1] - a[1][1] || (a[1][2] < b[1][2] ? 1 : -1));
-    const N1 = numero1(); if (N1.trams.length) { const t0 = N1.trams[0]; ta.appendChild(actTile('', 'Número 1 ara', String(t0.n), t0.nom, (t0.n === 1 ? N1.unitat[0] : N1.unitat[1] + (N1.unitat[0] === 'mes' ? ' seguits' : ' seguides')) + (t0.h != null ? ' · ' + fmt1(t0.h) : ''), t0.nom)); }
+    const N1 = numero1(); if (N1.trams.length) { const t0 = N1.trams[0]; ta.appendChild(actTile('', 'Número 1 ara', t0.nom, 'Fa ' + t0.n + ' ' + (t0.n === 1 ? N1.unitat[0] : N1.unitat[1]) + ' que és el número 1', t0.h != null ? 'HCP ' + fmt1(t0.h) : '', t0.nom)); }
     const mx = Y.voltes[0][1]; const vl = document.getElementById('act-voltes'); vl.replaceChildren();
     Y.voltes.slice(0, 8).forEach((x) => { const l = li([nmEl(x[0])], String(x[1])); const b = el('span', 'bar'); b.style.width = (x[1] / mx * 100) + '%'; l.appendChild(b); vl.appendChild(l); });
     const cm = Y.camps[0][1]; const cl = document.getElementById('act-camps'); cl.replaceChildren();
