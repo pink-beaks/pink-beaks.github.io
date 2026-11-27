@@ -105,6 +105,13 @@ async function resultats(html0) {
     const own = FULL[nom]; const i = ns.findIndex((x) => norm(x) === own); let p = i >= 0 ? (i % 2 === 0 ? ns[i + 1] : ns[i - 1]) : null;
     if (!p || norm(p) === own) p = ns.find((x) => norm(x) !== own); return p ? nice(p) : null;
   };
+  // birdies d'una volta: cops per forat de la fila del jugador a torneig.php (2 cops o menys = birdie o millor)
+  const birdies = async (nom, id, cb) => {
+    await select(nom); const h = await req('/jugador/resultats/torneig.php?id=' + id);
+    const own = FULL[nom]; const files = parse(h).querySelectorAll('tr').map((tr) => cells(tr).map((x) => net(x.text))).filter((c) => c.length >= 27 && norm(c[0]) === own);
+    const f = files.find((c) => +c[25] === cb) || (files.length === 1 ? files[0] : null); if (!f) return null;
+    return f.slice(3, 21).filter((x) => /^\d+$/.test(x) && +x <= 2).length;
+  };
   const ALL = {};
   for (const nom of Object.keys(IDS)) {
     try {
@@ -115,7 +122,14 @@ async function resultats(html0) {
       ALL[nom] = rows;
     } catch (e) { estat.errors.push('Resultats ' + nom + ': ' + e.message); }
   }
-  return { ALL, parella, select, self, IDS };
+  // posicions a Competicions Oficials (historial.php): { 'Títol de l'apartat': { any: [posició, resultat] } }
+  const historial = async (nom) => {
+    const h = await req('/jugador/resultats/historial.php', { method: 'POST', body: form({ IDJUG: IDS[nom] }) });
+    const out = {}; let cur = null;
+    for (const tr of parse(h).querySelectorAll('tr')) { const c = cells(tr).map((x) => net(x.text)); if (c.length === 1 && c[0] && c[0].length < 80) cur = c[0]; else if (cur && /^20\d\d$/.test(c[0] || '') && c.length >= 4) (out[cur] = out[cur] || {})[c[0]] = [+c[2] || null, +c[3] || null]; }
+    return out;
+  };
+  return { ALL, parella, birdies, historial, select, self, IDS };
 }
 
 // ---------- 3. Càlculs
@@ -172,6 +186,30 @@ async function actualitat(ALL, OFF, parella) {
   return { setmanes: S, any: { bi: pickR(best(Y.filter((r) => r.m === 'IN'))), bp: ypo || null, bf: pickR(best(Y.filter((r) => r.m === 'IN' && FEM.has(r.nom)))) || null, camps: Object.entries(camps).sort((a, b) => b[1] - a[1]).slice(0, 5), voltes: Object.entries(voltes).sort((a, b) => b[1] - a[1]), ratxes } };
 }
 
+// ---------- Objectius de la temporada (objectius.js)
+function llegirObjectius() {
+  try { const w = {}; new Function('window', readFileSync(ARREL + 'objectius.js', 'utf8'))(w); return { L: w.PB_OBJECTIUS || {}, any: String(w.PB_OBJECTIUS_ANY || '2027') }; } catch (e) { estat.avisos.push('objectius.js: ' + e.message); return { L: {}, any: '2027' }; }
+}
+async function objectius(ALL, OFF, birdies, historial) {
+  const { L, any } = llegirObjectius(); const ini = any + '-01-01', fi = any + '-12-31';
+  const cache = D.birdies_cache || {}; const out = {};
+  const desAnt = (D.mesos.find((m) => m.mes === (+any - 1) + '-12') || {}).hcp || {};
+  for (const nom of Object.keys(L)) {
+    const rs = (ALL[nom] || []).filter((r) => r.d >= ini && r.d <= fi && r.cb);
+    const IN = rs.filter((r) => r.m === 'IN'), P = rs.filter((r) => PAR.includes(r.m));
+    const o = { cbs: IN.map((r) => r.cb), voltes: rs.length, sota_par: IN.filter((r) => r.cb < 54).length, parelles: P.length ? Math.min(...P.map((r) => r.cb)) - 54 : null, hcp: OFF[nom] != null ? OFF[nom] : null, hcp_ini: desAnt[nom] != null ? desAnt[nom] : null, birdies: 0 };
+    if (L[nom].some((x) => x.tipus === 'birdies')) {
+      const c = cache[nom] = cache[nom] || {};
+      for (const r of IN) { if (!r.id) continue; const k = r.id + '|' + r.cb; if (c[k] == null) { try { const b = await birdies(nom, r.id, r.cb); if (b != null) c[k] = b; } catch (e) { /* res */ } } if (c[k] != null && c[k] > o.birdies) o.birdies = c[k]; }
+    }
+    for (const g of L[nom].filter((x) => x.tipus === 'ranquing' && x.seccio)) {
+      try { const Hs = await historial(nom); const k = Object.keys(Hs).find((t) => norm(t).includes(norm(g.seccio))); const v = k ? Hs[k][any] : null; (o.rank = o.rank || {})[g.seccio] = v || null; } catch (e) { estat.avisos.push('Historial ' + nom + ': ' + e.message); }
+    }
+    out[nom] = o;
+  }
+  D.birdies_cache = cache; return out;
+}
+
 function numero1Setmanes(ALL, OFF) {
   const NOMS = ['Gery', 'Oriol', 'Xoldi'].filter((n) => ALL[n]);
   const ultimDg = addD(monday(AVUI), -1); const out = []; let prev = null;
@@ -202,7 +240,7 @@ async function main() {
 
   const h0 = await login();
   if (h0) {
-    const { ALL, parella } = await resultats(h0);
+    const { ALL, parella, birdies, historial } = await resultats(h0);
     const R = Object.assign({}, D.resultats || {}); const MIN = Object.assign({}, D.hcp_min || {});
     for (const [nom, rows] of Object.entries(ALL)) {
       try { R[nom] = await resumJugador(nom, rows, parella); const mn = minHistoric(rows); if (mn) MIN[nom] = mn; } catch (e) { estat.errors.push('Resum ' + nom + ': ' + e.message); }
@@ -212,6 +250,7 @@ async function main() {
     D.resultats = R; D.hcp_min = MIN; D.resultats_actualitzat = AVUI;
     try { D.actualitat = await actualitat(ALL, OFF, parella); D.actualitat_data = AVUI; } catch (e) { estat.errors.push('Actualitat: ' + e.message); }
     try { D.n1 = numero1Setmanes(ALL, OFF); } catch (e) { estat.errors.push('Número 1: ' + e.message); }
+    try { D.objectius = await objectius(ALL, OFF, birdies, historial); } catch (e) { estat.errors.push('Objectius: ' + e.message); }
   }
   D.generat = AVUI;
   const out = 'window.PB_DATA = ' + JSON.stringify(D) + ';\n';
