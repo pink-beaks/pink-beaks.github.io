@@ -197,7 +197,7 @@ async function objectius(ALL, OFF, birdies, historial) {
   for (const nom of Object.keys(L)) {
     const rs = (ALL[nom] || []).filter((r) => r.d >= ini && r.d <= fi && r.cb);
     const IN = rs.filter((r) => r.m === 'IN'), P = rs.filter((r) => PAR.includes(r.m));
-    const o = { cbs: IN.map((r) => r.cb), voltes: rs.length, sota_par: IN.filter((r) => r.cb < 54).length, parelles: P.length ? Math.min(...P.map((r) => r.cb)) - 54 : null, hcp: OFF[nom] != null ? OFF[nom] : null, hcp_ini: desAnt[nom] != null ? desAnt[nom] : null, birdies: 0 };
+    const o = { cbs: IN.map((r) => r.cb), dates: [...new Set(rs.map((r) => r.d))], voltes: rs.length, sota_par: IN.filter((r) => r.cb < 54).length, parelles: P.length ? Math.min(...P.map((r) => r.cb)) - 54 : null, hcp: OFF[nom] != null ? OFF[nom] : null, hcp_ini: desAnt[nom] != null ? desAnt[nom] : null, birdies: 0 };
     if (L[nom].some((x) => x.tipus === 'birdies')) {
       const c = cache[nom] = cache[nom] || {};
       for (const r of IN) { if (!r.id) continue; const k = r.id + '|' + r.cb; if (c[k] == null) { try { const b = await birdies(nom, r.id, r.cb); if (b != null) c[k] = b; } catch (e) { /* res */ } } if (c[k] != null && c[k] > o.birdies) o.birdies = c[k]; }

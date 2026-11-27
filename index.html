@@ -44,8 +44,8 @@ h1 .dot { color: var(--lime); }
 .seg { display: inline-flex; flex-wrap: wrap; background: #fff; border: 1px solid var(--sand); border-radius: 999px; padding: 2px; gap: 2px; }
 .seg button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 500; padding: 5px 13px; border-radius: 999px; cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--cream); }
-.seg button[data-equip="Primer Equip"][aria-pressed="true"], .seg button[data-equipcal="Primer Equip"][aria-pressed="true"] { background: var(--blue); color: #fff; }
-.seg button[data-equip="Femení"][aria-pressed="true"], .seg button[data-equipcal="Femení"][aria-pressed="true"] { background: var(--lime); color: var(--ink); }
+.seg button[data-equipcal="Primer Equip"][aria-pressed="true"] { background: var(--blue); color: #fff; }
+.seg button[data-equipcal="Femení"][aria-pressed="true"] { background: var(--lime); color: var(--ink); }
 .seg button[data-rang][aria-pressed="true"] { background: var(--pink-strong); color: #fff; }
 
 /* Xifres */
@@ -135,8 +135,10 @@ tbody tr:hover td { background: #FDF3F6; }
 .tabs-in { max-width: 1100px; margin: 0 auto; padding: 0 var(--pad); display: flex; gap: 6px; }
 .tab { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.25rem; letter-spacing: .03em; background: transparent; border: 0; color: var(--muted); padding: 14px 16px 10px; cursor: pointer; border-bottom: 4px solid transparent; margin-bottom: -2px; }
 .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--pink-strong); }
+.tab[data-tab="megamites"][aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); }
+.tab[data-tab="eagles"][aria-selected="true"] { color: var(--ink); border-bottom-color: var(--lime); box-shadow: inset 0 -4px 0 var(--lime); background: linear-gradient(transparent 70%, rgba(214,242,74,.25)); }
 .tab:hover { color: var(--ink); }
-@media (max-width: 560px) { .tabs-in { gap: 0; justify-content: space-between; } .tab { font-size: 1.02rem; padding: 12px 8px 9px; letter-spacing: .02em; } }
+@media (max-width: 560px) { .tabs-in { gap: 0; justify-content: space-between; padding: 0 8px; } .tab { font-size: .86rem; padding: 12px 5px 9px; letter-spacing: .01em; } .panel { padding-top: 16px; } }
 .tab .ts { display: block; font-family: var(--sans, inherit); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 11px; color: var(--muted); margin-top: 1px; }
 .hint { display: flex; align-items: center; gap: 12px; background: var(--ink); color: #fff; border-radius: 12px; padding: 12px 16px; margin: 14px 0 12px; font-weight: 600; }
 .hint .ic { font-size: 22px; line-height: 1; }
@@ -155,6 +157,7 @@ tbody tr:hover td { background: #FDF3F6; }
 .obj-it.fet .bar i { background: var(--good); }
 .obj-it .st { font-size: 12px; color: var(--muted); margin-top: 5px; }
 .obj-it.fet .st { color: var(--good); font-weight: 700; }
+.panel { padding-top: 22px; }
 .panel[hidden] { display: none; }
 #tile-next { cursor: pointer; }
 .camps { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
@@ -240,6 +243,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   <div class="tabs-in" role="tablist">
     <button class="tab" role="tab" id="t-megamites" aria-controls="handicaps" aria-selected="true" data-tab="megamites">Megamites</button>
     <button class="tab" role="tab" id="t-eagles" aria-controls="handicaps" aria-selected="false" data-tab="eagles">Eagles</button>
+    <button class="tab" role="tab" id="t-calendari" aria-controls="calendari-tab" aria-selected="false" data-tab="calendari">Calendari</button>
     <button class="tab" role="tab" id="t-actualitat" aria-controls="actualitat-tab" aria-selected="false" data-tab="actualitat">Actualitat</button>
   </div>
 </nav>
@@ -268,7 +272,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 
   <section id="classificacio">
     <h2>Classificació actual</h2>
-    <div class="hint"><span class="ic">👆</span><span>Toca un jugador per veure les seves <b>estadístiques personals</b></span></div>
+    <div class="hint"><span class="ic">👇</span><span>Toca un jugador per veure les seves <b>estadístiques personals</b></span></div>
     <div class="tablewrap">
       <table>
         <thead><tr><th>#</th><th>Jugador</th><th class="num">HCP</th><th class="num">Δ mes</th><th>Forma</th><th class="num">Mitj. 5</th><th>Últim update</th><th></th></tr></thead>
@@ -277,9 +281,18 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     </div>
   </section>
 
-  <section id="calendari" style="margin-top: 32px">
+  </div>
+
+  <div class="panel" id="calendari-tab" role="tabpanel" aria-labelledby="t-calendari" hidden>
+  <section id="calendari">
     <h2>Calendari 2027</h2>
     <div class="controls cal-controls">
+      <span><span class="seg-label">Equip</span>
+        <span class="seg" role="group" aria-label="Equip">
+          <button type="button" data-equipcal="" aria-pressed="true">Tots</button>
+          <button type="button" data-equipcal="Primer Equip" aria-pressed="false">Megamites</button>
+          <button type="button" data-equipcal="Femení" aria-pressed="false">Eagles</button>
+        </span></span>
       <span><span class="seg-label">Competició</span>
         <span class="seg" role="group" aria-label="Competició">
           <button type="button" data-tipus="" aria-pressed="true">Totes</button>
@@ -345,7 +358,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   const MESOS_LLARG = ['Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny', 'Juliol', 'Agost', 'Setembre', 'Octubre', 'Novembre', 'Desembre'];
   const DIES = ['dg', 'dl', 'dt', 'dc', 'dj', 'dv', 'ds'];
   const PAL = ['#DE5F78', '#1F45C8', '#B40F3B', '#17131F', '#8FA617', '#EC809A', '#6F8BEA', '#A8926B'];
-  const state = { equip: 'Primer Equip', rang: '12', tipus: '', focus: null };
+  const state = { equip: 'Primer Equip', equipCal: '', rang: '12', tipus: '', focus: null };
   try { const s = JSON.parse(localStorage.getItem('pb-public') || '{}'); if (s.rang) state.rang = s.rang; if (s.tipus2 !== undefined) state.tipus = s.tipus2; } catch (e) {}
   const save = () => { try { localStorage.setItem('pb-public', JSON.stringify({ rang: state.rang, tipus2: state.tipus })); } catch (e) {} };
 
@@ -507,7 +520,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   function toggleFocus(n) { state.focus = state.focus === n ? null : n; drawChart(long()); }
 
   function drawCalendar() {
-    const evs = calendari(state.equip, state.tipus);
+    const evs = calendari(state.equipCal, state.tipus);
     const next = evs.find((e) => parseDia(e.data) >= avuiUTC);
     const nb = document.getElementById('next'); nb.replaceChildren();
     if (next) {
@@ -547,13 +560,15 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
     body.appendChild(el('h5', '', 'Objectius ' + OBJ_ANY));
     const box = el('div', 'obj');
     L.forEach((o) => {
-      let val = null, pct = 0, fet = false, txt = '', st = '';
+      let val = null, pct = 0, fet = false, txt = '', st = '', it0 = false;
       const n = (v) => (v == null ? 0 : v);
       if (o.tipus === 'birdies') { val = n(O.birdies); pct = val / o.objectiu; fet = val >= o.objectiu; txt = val + ' / ' + o.objectiu; st = fet ? 'Aconseguit!' : 'Millor volta: ' + val + (val === 1 ? ' birdie' : ' birdies'); }
       else if (o.tipus === 'sota_par') { const mg = o.marge != null ? o.marge : -1; val = O.cbs ? O.cbs.filter((c) => c <= 54 + mg).length : (mg === -1 ? n(O.sota_par) : 0); pct = val / o.objectiu; fet = val >= o.objectiu; txt = val + ' / ' + o.objectiu; st = fet ? 'Aconseguit!' : 'En falten ' + (o.objectiu - val) + (mg !== -1 ? ' (voltes individuals de ' + (54 + mg) + ' cops o menys)' : ''); }
       else if (o.tipus === 'ranquing') { const rk = (O.rank || {})[o.seccio]; val = rk ? rk[0] : null; pct = val ? Math.min(1, o.objectiu / val) : 0; fet = val != null && val <= o.objectiu; txt = val ? val + 'è' : '—'; st = val == null ? 'Encara sense classificació ' + OBJ_ANY + ' (' + o.seccio + ')' : fet ? 'Dins el top ' + o.objectiu + ' · ' + o.seccio : 'Ha de pujar ' + (val - o.objectiu) + ' posicions · ' + o.seccio; }
       else if (o.tipus === 'parelles') { val = O.parelles; const v = val == null ? 0 : val; pct = v >= 0 ? 0 : v / o.objectiu; fet = val != null && val <= o.objectiu; txt = val == null ? '—' : (val > 0 ? '+' : val < 0 ? '−' : '') + Math.abs(val); st = fet ? 'Aconseguit!' : val == null ? 'Encara cap volta de parelles' : 'Millor volta de parelles respecte al par'; }
       else if (o.tipus === 'hcp') { val = O.hcp; const ini = O.hcp_ini != null ? O.hcp_ini : val; pct = ini != null && ini > o.objectiu ? (ini - val) / (ini - o.objectiu) : (val != null && val <= o.objectiu ? 1 : 0); fet = val != null && val <= o.objectiu; txt = fmt1(val) + ' → ' + fmt1(o.objectiu); st = fet ? 'Aconseguit!' : 'Handicap actual'; }
+      else if (o.tipus === 'volta') { const cb = O.cbs || []; val = cb.length ? Math.min(...cb) : null; fet = val != null && val <= o.objectiu; pct = val == null ? 0 : fet ? 1 : Math.max(0, 1 - (val - o.objectiu) / 10); txt = val == null ? '—' : String(val); st = fet ? 'Aconseguit!' : val == null ? 'Encara cap volta individual' : 'Millor volta individual: ' + val + ' cops'; }
+      else if (o.tipus === 'proves') { const tp = o.proves || []; const evs = D.calendari.filter((e) => (e.equip === 'Tots' || e.equip === (D.jugadors.find((j) => j.nom === nom) || {}).equip) && tp.some((t) => e.tipus.startsWith(t))); const dies = new Set(O.dates || []); const passades = evs.filter((e) => parseDia(e.data) < avuiUTC); const jug = evs.filter((e) => dies.has(e.data)).length; const perd = passades.filter((e) => !dies.has(e.data)).length; val = jug; pct = evs.length ? jug / evs.length : 0; fet = evs.length > 0 && jug >= evs.length; txt = jug + ' / ' + evs.length; st = fet ? 'Aconseguit!' : perd ? 'N\'ha perdut ' + perd : passades.length ? 'De moment, totes jugades' : 'Encara no ha començat'; if (perd && !fet) it0 = true; }
       else if (o.tipus === 'voltes') { val = n(O.voltes); pct = val / o.objectiu; fet = val >= o.objectiu; txt = val + ' / ' + o.objectiu; st = fet ? 'Aconseguit!' : 'En falten ' + (o.objectiu - val); }
       const it = el('div', 'obj-it' + (fet ? ' fet' : ''));
       const top = el('div', 'top'); top.append(el('span', 'tt', o.text), el('span', 'val', txt)); it.appendChild(top);
@@ -595,7 +610,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
       stat('s4', 'Torneigs (12 mesos)', String(R.n12), R.n + ' en total');
       const rkj = ranking(serie.map((x) => ({ jugador: nom, equip: j.equip, mes: x.mes, hcp: x.hcp })))[0];
       if (rkj) stat('', 'Δ any', fmtS(rkj.d_any), 'HCP respecte al desembre passat', tone(rkj.d_any));
-      if (R.g != null) stat('s2', 'Golf', fmt1(Math.round((R.g - 54) * 10) / 10), R.gn < 10 ? 'Només ' + R.gn + ' torneigs individuals: mitjana dels ' + Math.min(5, R.gn) + ' millors, menys 54' : 'Mitjana dels 5 millors dels 10 últims torneigs individuals, menys 54');
+      if (R.g != null) stat('s2', 'Pink Hcp', fmt1(Math.round((R.g - 54) * 10) / 10), R.gn < 10 ? 'Només ' + R.gn + ' torneigs individuals: mitjana dels ' + Math.min(5, R.gn) + ' millors, menys 54' : 'Mitjana dels 5 millors dels 10 últims torneigs individuals, menys 54');
       body.appendChild(stats);
       if (R.top && R.top.length) {
         body.appendChild(el('h5', '', 'Camps més jugats'));
@@ -652,6 +667,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
   function render() {
     document.querySelectorAll('[data-rang]').forEach((b) => b.setAttribute('aria-pressed', String(state.rang === b.dataset.rang)));
     document.querySelectorAll('[data-tipus]').forEach((b) => b.setAttribute('aria-pressed', String(state.tipus === b.dataset.tipus)));
+    document.querySelectorAll('[data-equipcal]').forEach((b) => b.setAttribute('aria-pressed', String(state.equipCal === b.dataset.equipcal)));
     const rows = long();
     drawTiles(rows); drawChart(rows); drawRanking(rows); drawCalendar();
     const peu = document.getElementById('peu');
@@ -661,6 +677,7 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 
   document.querySelectorAll('[data-rang]').forEach((b) => b.addEventListener('click', () => { state.rang = b.dataset.rang; save(); drawChart(long()); document.querySelectorAll('[data-rang]').forEach((x) => x.setAttribute('aria-pressed', String(state.rang === x.dataset.rang))); }));
   document.querySelectorAll('[data-tipus]').forEach((b) => b.addEventListener('click', () => { state.tipus = b.dataset.tipus; save(); render(); }));
+  document.querySelectorAll('[data-equipcal]').forEach((b) => b.addEventListener('click', () => { state.equipCal = b.dataset.equipcal; render(); }));
 
   // ---- Actualitat
   const A = D.actualitat || null; const WEEKS = A ? Object.keys(A.setmanes).sort() : []; let wkIx = WEEKS.length - 1;
@@ -753,15 +770,18 @@ footer { font-size: 12px; color: var(--muted); border-top: 2px solid var(--ink);
 
   const EQUIP_TAB = { megamites: 'Primer Equip', eagles: 'Femení' };
   function showTab(name, push) {
-    if (name !== 'eagles' && name !== 'actualitat') name = 'megamites';
+    if (!['eagles', 'calendari', 'actualitat'].includes(name)) name = 'megamites';
     document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
-    document.getElementById('handicaps').hidden = name === 'actualitat';
+    document.getElementById('handicaps').hidden = !EQUIP_TAB[name];
+    document.getElementById('calendari-tab').hidden = name !== 'calendari';
     document.getElementById('actualitat-tab').hidden = name !== 'actualitat';
     if (push && location.hash !== '#' + name) { try { history.replaceState(null, '', '#' + name); } catch (e) { location.hash = name; } }
     if (EQUIP_TAB[name]) { if (state.equip !== EQUIP_TAB[name]) { state.equip = EQUIP_TAB[name]; state.focus = null; } render(); }
+    if (name === 'calendari') render();
+    if (push) window.scrollTo({ top: 0 });
   }
   document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab, true); window.scrollTo({ top: 0 }); }));
-  document.getElementById('tile-next').addEventListener('click', () => { document.getElementById('calendari').scrollIntoView({ behavior: 'smooth' }); });
+  document.getElementById('tile-next').addEventListener('click', () => { state.equipCal = state.equip; showTab('calendari', true); });
   window.addEventListener('hashchange', () => showTab(location.hash.slice(1), false));
   let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawChart(long()), 150); });
   showTab(location.hash.slice(1), false);
